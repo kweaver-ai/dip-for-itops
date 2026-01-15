@@ -1,0 +1,75 @@
+namespace: dip
+cluster: dip
+dipModule: itops-alert-manager
+
+#环境变量：语言/时区
+env:
+  timezone: Asia/Shanghai
+  language: en_US.UTF-8
+
+replicaCount: 1
+
+#节点选择器
+nodeSelector:
+
+image:
+  registry: acr.aishu.cn
+  repository: ar/itops-alert-manager
+  tag: tag
+  pullPolicy: Always
+
+service:
+  enableDualStack: false
+  ingressclassname: "class-443"
+  reportCenter:
+    type: ClusterIP
+    port: 13046
+    nodePort: 33046
+    ingress:
+      enabled: true
+      interface:
+        path:
+          - /api/itops_alert_manager/v1
+
+#反亲和性设置
+antiAffinity:
+  enabled: true
+  rule: "soft" # hard, soft
+
+depServices:
+  rds:
+    type: MYSQL
+
+config:
+  app:
+    mode: release
+  server:
+    runMode: release
+    httpPort: 13046
+    language: zh-CN
+    readTimeOut: 120
+    writeTimeOut: 120
+  log:
+    logLevel: info
+    developMode: false
+    maxAge: 100
+    maxBackups: 20
+    maxSize: 10
+  mysql:
+    host: mariadb-mariadb-master.resource # mariadb-mariadb-master.resource
+    port: 3330 #3330
+    username: root  # anyshare
+    password: eisoo.com123  # eisoo.com123
+# storage:
+#   capacity: 10Gi
+#   storageClassName: ""
+#   local:
+#     host: node0
+#     path: /sysvol/dip/itops-alert-manager
+resources:
+  requests:
+    cpu: 0
+    memory: 0Gi
+  limits:
+    cpu: 2
+    memory: 4Gi

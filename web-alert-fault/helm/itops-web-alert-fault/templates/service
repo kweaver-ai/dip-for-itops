@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.dipModule}}-{{ .Values.cluster }}
+  namespace: {{.Values.namespace}}
+  labels:
+    {{.Values.dipModule}}-{{ .Values.cluster }}-service: "true"
+    cluster: {{.Values.cluster}}
+    anyrobot-module: {{.Values.dipModule}}
+spec:
+{{- if .Values.service.enableDualStack }}
+  ipFamilies:
+  - IPv6
+  - IPv4
+  ipFamilyPolicy: PreferDualStack
+{{- end }}
+  ports:
+    - name: {{ .Values.service.name }}
+      port: {{ .Values.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.service.port }}
+  selector:
+    {{.Values.dipModule}}-{{ .Values.cluster }}-service: "true"
+  type: {{ .Values.service.type }}
+  clusterIP: None

@@ -1,0 +1,127 @@
+{
+    "conponentDefineType": "helm/service",
+    "name": "alert-analysis",
+    "version": "5.1.0",
+    "configSchema": {
+        "title": "alert-analysis",
+        "description": "告警分析组件配置定义",
+        "type": "object",
+        "properties": {
+            "resources": {
+                "type": "object",
+                "title": "容器资源控制",
+                "properties": {
+                    "requests": {
+                        "type": "object",
+                        "description": "容器运行需要的最小资源分配",
+                        "properties": {
+                            "memory": {
+                                "type": "string",
+                                "title": "内存"
+                            },
+                            "cpu": {
+                                "type": "string",
+                                "title": "cpu"
+                            }
+                        }
+                    },
+                    "limits": {
+                        "type": "object",
+                        "description": "容器运行最大资源限制",
+                        "properties": {
+                            "memory": {
+                                "type": "string",
+                                "title": "内存"
+                            },
+                            "cpu": {
+                                "type": "string",
+                                "title": "cpu"
+                            }
+                        }
+                    }
+                }
+            },
+            "replicaCount": {
+                "type": "number",
+                "title": "服务副本数"
+            },
+            "config": {
+                "type": "object",
+                "title": "服务配置",
+                "properties": {
+
+                    "platform": {
+                        "type": "object",
+                        "title": "平台配置信息",
+                        "properties": {
+                            "base_url": {
+                                "type": "string",
+                                "title": "ADP平台地址"
+                            },
+                            "authorization": {
+                                "type": "string",
+                                "title": "ADP平台TOKEN"
+                            }
+                        }
+                    },
+                    "kafka": {
+                        "type": "object",
+                        "title": "Kafka 配置",
+                        "properties": {
+                            "brokers": {
+                                "type": "array",
+                                "title": "Kafka Broker 地址",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "topic": {
+                                "type": "string",
+                                "title": "Kafka Topic"
+                            },
+                            "group_id": {
+                                "type": "string",
+                                "title": "Consumer Group ID"
+                            }
+                        }
+                    },
+                    "opensearch": {
+                        "type": "object",
+                        "title": "OpenSearch 配置",
+                        "properties": {
+                            "hosts": {
+                                "type": "array",
+                                "title": "OpenSearch 地址",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "username": {
+                                "type": "string",
+                                "title": "用户名"
+                            },
+                            "password": {
+                                "type": "string",
+                                "title": "密码"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "dependence": [
+        {
+            "name": "mq"
+        },
+        {
+            "name": "redis"
+        },
+        {
+            "name": "opensearch"
+        },
+        {
+            "name": "class-443"
+        }
+    ]
+}

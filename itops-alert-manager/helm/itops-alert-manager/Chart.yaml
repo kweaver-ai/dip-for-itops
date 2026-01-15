@@ -1,0 +1,5 @@
+apiVersion: v1
+appVersion: "1.0.0"
+description: helm chart for itops-alert-manager
+name: itops-alert-manager
+version: 1.0.0

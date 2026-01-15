@@ -1,0 +1,36 @@
+{{- if .Values.service.alertAnalysis.ingress.enabled -}}
+{{ if .Values.service.alertAnalysis.ingress.interface }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: "{{ .Values.namespace }}"
+  name: {{ .Values.moduleName }}-{{ .Values.cluster }}-ingress
+  annotations:
+    {{- $arSharedCfg := (lookup "v1" "ConfigMap" "anyrobot" "ar-shared-configmap") -}}
+    {{- if $arSharedCfg }}
+    {{- $authConfig := fromJson $arSharedCfg.data.authconfig -}}
+    {{- if eq $authConfig.auth_enabled "true" }}
+    nginx.ingress.kubernetes.io/auth-url: {{ $authConfig.auth_url }}
+    {{- end }}
+    {{- end }}
+    nginx.ingress.kubernetes.io/proxy-body-size: "500M"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+{{- if index .Values.depServices "class-443" "ingressClass" }}
+  ingressClassName: {{ index .Values.depServices "class-443" "ingressClass" }}
+{{- end }}
+  rules:
+  - http:
+      paths:
+        {{- range .Values.service.alertAnalysis.ingress.interface.path }}
+        - path: {{ . }}
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{$.Values.moduleName}}-{{$.Values.cluster}}
+              port:
+                number: {{ $.Values.service.alertAnalysis.port }}
+        {{- end }}
+{{ end }}
+{{- end }}
+

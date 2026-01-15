@@ -1,0 +1,192 @@
+@import '../index.module.less';
+
+.overviewContainer {
+  height: 100%;
+  padding: 12px 24px;
+  box-sizing: border-box;
+
+  .card {
+    height: 100%;
+    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 0 12px;
+    flex: 1;
+    background-color: #fff;
+
+    &.cardHeight {
+      height: 270px;
+      flex: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cardHeader {
+      flex: 0 0 47px;
+      padding: 12px 0;
+      box-sizing: border-box;
+      font-weight: bold;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.85);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .impactContent {
+      height: 100%;
+      overflow: auto;
+    }
+
+    .content {
+      flex: 1 1 auto;
+
+      :global {
+        .ar-ant-col {
+          font-size: 12px !important;
+        }
+      }
+      .row {
+        font-size: 12px !important;
+        padding: 6px 0;
+
+        &:first-child {
+          padding-top: 12px;
+        }
+      }
+
+      .rcoListContainer {
+        width: 179px;
+        height: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
+
+        .rcoList {
+          height: calc(100% - 20px);
+          overflow-x: hidden;
+          overflow-y: auto;
+
+          :global {
+            .ar-ant-collapse-item {
+              border-bottom: 0 !important;
+
+              .ar-ant-collapse-header {
+                padding: 6px 16px;
+              }
+
+              .ar-ant-collapse-body {
+                padding: 4px 16px;
+              }
+            }
+          }
+
+          .equipmentItem {
+            display: flex;
+            width: 140px;
+            align-items: center;
+            gap: 8px;
+            @apply truncate;
+            overflow: hidden;
+            font-size: 12px;
+            padding: 2px 0 2px 24px;
+
+            span {
+              @apply truncate;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+
+            .monitorIcon {
+              vertical-align: middle;
+              margin-right: 4px;
+            }
+          }
+        }
+      }
+
+      .graphContainer {
+        flex: 1;
+        height: calc(100% - 20px);
+        overflow: hidden;
+      }
+    }
+  }
+
+  .impactCard {
+    height: calc(100% - 840px);
+    overflow: auto;
+  }
+
+  .faultCardWrap {
+    flex: 0 0 640px;
+    width: 640px;
+    height: 100%;
+
+    .faultCardContent {
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin-bottom: 12px;
+    }
+
+    :global {
+      .ar-ant-divider-horizontal {
+        margin: 12px 0;
+      }
+    }
+  }
+
+  .itemWrap {
+    height: 22px;
+    padding-right: 12px;
+    line-height: 22px;
+
+    .itemTitle {
+      width: 150px;
+      color: var(--ant-color-text);
+    }
+  }
+
+  .infoItemWrap {
+    width: calc(100% - 150px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .textWrap {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .title {
+      color: var(--ant-color-text);
+    }
+  }
+
+  .linkColor {
+    color: #126ee3;
+  }
+}
+
+.wordBreak {
+  word-break: break-all;
+}
+
+.processText {
+  word-break: break-all;
+}
+
+.impactText {
+  word-break: break-all;
+  color: #126ee3;
+}
+
+.faultProcessWrap {
+  border: 1px solid #e5e7eb;
+  background-color: #fafcff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+}

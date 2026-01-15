@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.moduleName }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  config.yaml: |
+    {{- toYaml .Values.config | nindent 4 }}
+    depServices:
+      {{- toYaml .Values.depServices | nindent 6 }}

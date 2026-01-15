@@ -1,0 +1,397 @@
+components:
+  schemas:
+    BotInfoResponse:
+      type: object
+      description: 查看智能体配置的响应体。
+      properties:
+        code:
+          type: integer
+          format: int64
+          description: 业务状态码，0 表示成功。
+        msg:
+          type: string
+          description: 状态码非 0 时的错误信息。
+        data:
+          $ref: '#/components/schemas/BotInfo'
+        detail:
+          $ref: '#/components/schemas/ResponseDetail'
+    BotInfo:
+      type: object
+      description: 智能体配置详情。
+      properties:
+        bot_id:
+          type: string
+          description: 智能体唯一标识。
+        name:
+          type: string
+          description: 智能体名称。
+        description:
+          type: string
+          description: 智能体描述信息。
+        icon_url:
+          type: string
+          format: uri
+          description: 智能体头像地址。
+        create_time:
+          type: integer
+          format: int64
+          description: 创建时间戳，单位毫秒。
+        update_time:
+          type: integer
+          format: int64
+          description: 更新时间戳，单位毫秒。
+        version:
+          type: string
+          description: 智能体版本号。
+        prompt_info:
+          $ref: '#/components/schemas/PromptInfo'
+        onboarding_info:
+          $ref: '#/components/schemas/OnboardingInfoV2'
+        bot_mode:
+          type: integer
+          description: 智能体模式；0 普通模式，1 单 Agent 模式，5 多 Agent 模式。
+        plugin_info_list:
+          type: array
+          description: 智能体使用的工具列表。
+          items:
+            $ref: '#/components/schemas/PluginInfo'
+        model_info:
+          $ref: '#/components/schemas/ModelInfo'
+        folder_id:
+          type: string
+          description: 智能体所属文件夹 ID。
+        knowledge:
+          $ref: '#/components/schemas/CommonKnowledge'
+        variables:
+          type: array
+          description: 智能体使用的变量列表。
+          items:
+            $ref: '#/components/schemas/Variable'
+        media_config:
+          $ref: '#/components/schemas/MediaConfig'
+        owner_user_id:
+          type: string
+          description: 智能体创建者用户 ID。
+        server_user_id:
+          type: string
+          description: 智能体关联的服务用户 ID。
+        voice_info_list:
+          type: array
+          description: 智能体支持的语音配置列表。
+          items:
+            $ref: '#/components/schemas/Voice'
+        shortcut_commands:
+          type: array
+          description: 智能体快捷指令列表。
+          items:
+            $ref: '#/components/schemas/ShortcutCommandInfo'
+        workflow_info_list:
+          type: array
+          description: 智能体关联的工作流列表。
+          items:
+            $ref: '#/components/schemas/WorkflowInfo'
+        background_image_info:
+          $ref: '#/components/schemas/BackgroundImageInfo'
+        default_user_input_type:
+          type: string
+          description: 默认输入方式，text 为键入，call 为电话输入。
+          enum:
+            - text
+            - call
+        suggest_reply_info:
+          $ref: '#/components/schemas/SuggestReplyInfo'
+    PromptInfo:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: 智能体使用的 Prompt 文本。
+    OnboardingInfoV2:
+      type: object
+      properties:
+        prologue:
+          type: string
+          description: 引导话术。
+        suggested_questions:
+          type: array
+          description: 推荐的引导问题。
+          items:
+            type: string
+        customized_onboarding_prompt:
+          type: string
+          description: LLM 使用的引导 Prompt。
+    PluginInfo:
+      type: object
+      properties:
+        plugin_id:
+          type: string
+          description: 智能体工具 ID。
+        name:
+          type: string
+          description: 工具名称。
+        description:
+          type: string
+          description: 工具描述。
+        icon_url:
+          type: string
+          format: uri
+          description: 工具图标地址。
+        api_info_list:
+          type: array
+          description: 工具下的 API 列表。
+          items:
+            $ref: '#/components/schemas/ApiInfo'
+    ApiInfo:
+      type: object
+      properties:
+        api_id:
+          type: string
+          description: 工具 API ID。
+        name:
+          type: string
+          description: API 名称。
+        description:
+          type: string
+          description: API 描述。
+    ModelInfo:
+      type: object
+      properties:
+        top_k:
+          type: integer
+          description: 采样参数 top_k。
+        top_p:
+          type: number
+          format: double
+          description: 采样参数 top_p。
+        model_id:
+          type: string
+          description: 模型 ID。
+        max_tokens:
+          type: integer
+          description: 最大输出 Tokens 长度。
+        model_name:
+          type: string
+          description: 模型名称。
+        parameters:
+          type: object
+          description: 额外模型参数，键值对形式，例如 thinking_type、enable。
+          additionalProperties: true
+        temperature:
+          type: number
+          format: double
+          description: 温度系数。
+        context_round:
+          type: integer
+          description: 上下文轮次。
+        response_format:
+          type: string
+          description: 响应格式，如 text。
+        presence_penalty:
+          type: number
+          format: double
+          description: 存在惩罚。
+        frequency_penalty:
+          type: number
+          format: double
+          description: 频率惩罚。
+    CommonKnowledge:
+      type: object
+      properties:
+        knowledge_infos:
+          type: array
+          description: 关联的知识库列表。
+          items:
+            $ref: '#/components/schemas/KnowledgeInfo'
+    KnowledgeInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 知识库 ID。
+        name:
+          type: string
+          description: 知识库名称。
+    Variable:
+      type: object
+      properties:
+        enable:
+          type: boolean
+          description: 是否启用变量。
+        channel:
+          type: string
+          description: 变量渠道，默认为 custom。
+        keyword:
+          type: string
+          description: 变量名。
+        description:
+          type: string
+          description: 变量说明。
+        default_value:
+          type: string
+          description: 默认值。
+        prompt_enable:
+          type: boolean
+          description: 是否开启 Prompt 提问。
+    MediaConfig:
+      type: object
+      properties:
+        is_voice_call_closed:
+          type: boolean
+          description: 是否关闭语音通话，true 表示关闭，false 表示开启。
+    Voice:
+      type: object
+      properties:
+        voice_id:
+          type: string
+          description: 语音 ID。
+        language_code:
+          type: string
+          description: 语音语言编码。
+    ShortcutCommandInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 快捷指令名称。
+        type:
+          type: string
+          description: 快捷指令类型，workflow 或 plugin。
+          enum:
+            - workflow
+            - plugin
+        tool:
+          $ref: '#/components/schemas/ShortcutCommandToolInfo'
+        command:
+          type: string
+          description: 指令命令词。
+        agent_id:
+          type: string
+          description: 指令关联的 Agent ID。
+        icon_url:
+          type: string
+          format: uri
+          description: 指令图标地址。
+        conf_schema:
+          type: string
+          description: 指令配置 schema。
+        description:
+          type: string
+          description: 指令描述。
+        query_template:
+          type: string
+          description: 默认查询模板。
+    ShortcutCommandToolInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 工具名称。
+        type:
+          type: string
+          description: 工具类型，workflow 或 plugin。
+          enum:
+            - workflow
+            - plugin
+        plugin_id:
+          type: string
+          description: 关联插件 ID，当 type 为 plugin 时填写。
+        workflow_id:
+          type: string
+          description: 关联工作流 ID，当 type 为 workflow 时填写。
+    WorkflowInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 工作流 ID。
+        name:
+          type: string
+          description: 工作流名称。
+        icon_url:
+          type: string
+          format: uri
+          description: 工作流图标地址。
+        description:
+          type: string
+          description: 工作流描述。
+    BackgroundImageInfo:
+      type: object
+      properties:
+        web_background_image:
+          $ref: '#/components/schemas/BackgroundImageDetail'
+        mobile_background_image:
+          $ref: '#/components/schemas/BackgroundImageDetail'
+    BackgroundImageDetail:
+      type: object
+      properties:
+        image_url:
+          type: string
+          format: uri
+          description: 背景图 URL。
+        origin_image_url:
+          type: string
+          format: uri
+          description: 背景图原图 URL。
+        theme_color:
+          type: string
+          description: 主题颜色。
+        canvas_position:
+          $ref: '#/components/schemas/CanvasPosition'
+        gradient_position:
+          $ref: '#/components/schemas/GradientPosition'
+    CanvasPosition:
+      type: object
+      properties:
+        top:
+          type: number
+          format: double
+          description: 背景图顶部位置（px）。
+        left:
+          type: number
+          format: double
+          description: 背景图左侧位置（px）。
+        width:
+          type: number
+          format: double
+          description: 背景图宽度（px）。
+        height:
+          type: number
+          format: double
+          description: 背景图高度（px）。
+    GradientPosition:
+      type: object
+      properties:
+        top:
+          type: number
+          format: double
+          description: 渐变顶部位置。
+        left:
+          type: number
+          format: double
+          description: 渐变左侧位置。
+        right:
+          type: number
+          format: double
+          description: 渐变右侧位置。
+        bottom:
+          type: number
+          format: double
+          description: 渐变底部位置。
+    ResponseDetail:
+      type: object
+      properties:
+        logid:
+          type: string
+          description: 请求唯一标识，用于排查请求问题。
+    SuggestReplyInfo:
+      type: object
+      properties:
+        reply_mode:
+          type: string
+          description: 推荐回复模式，enable 表示开启。
+          enum:
+            - enable
+            - disable
+        customized_prompt:
+          type: string
+          description: 自定义回复 Prompt。

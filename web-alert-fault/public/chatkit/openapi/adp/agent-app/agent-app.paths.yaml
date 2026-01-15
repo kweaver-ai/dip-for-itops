@@ -1,0 +1,71 @@
+paths:
+  /app/{agent_id}/conversation:
+    post:
+      tags:
+        - agent-app
+      operationId: createConversation
+      summary: 创建会话
+      description: 创建 Data Agent 会话。
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID。
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./agent-app.schemas.yaml#/components/schemas/CreateConversationRequest
+            example:
+              agent_id: 01KAZKS30H0X0D8Z8K24FMRJK6
+              agent_version: v1
+              executor_version: v2
+      responses:
+        "200":
+          description: 创建会话成功
+          content:
+            application/json:
+              schema:
+                $ref: ./agent-app.schemas.yaml#/components/schemas/ConversationResponse
+
+  /app/{agent_id}/chat/completion:
+    post:
+      tags:
+        - agent-app
+      operationId: sendChatCompletion
+      summary: 发送对话消息
+      description: 调用 Data Agent 聊天接口，支持流式返回。
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID。
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: 用户或应用账号的 Bearer token。
+          schema:
+            type: string
+          example: Bearer ory_at_yhkn-kjRfYcivXUnMH9Rsdw4SzrkKSFFjNpglg06dRM.s1FWQ02zhWnS7NeKjupSGYmEXMzUa5XKp3RwS4BqZvg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./agent-app.schemas.yaml#/components/schemas/ChatCompletionRequest
+            example:
+              agent_id: 01KAZKS30H0X0D8Z8K24FMRJK6
+              query: 集群节点故障该如何处理
+              stream: true
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ./agent-app.schemas.yaml#/components/schemas/ChatResponse

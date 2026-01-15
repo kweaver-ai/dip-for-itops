@@ -1,0 +1,353 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - "feature-*"
+      - "feature/*"
+      - "develop"
+      - "release-*"
+      - "release/*"
+
+variables:
+  - group: anyrobot-global-config
+  - name: IMAGE_REGISTRY
+    value: "acr.aishu.cn"
+  - name: IMAGE_REPOSITORY
+    value: "/ar/itops-web-alert-fault"
+  - name: CHART_REPO
+    value: "https://acr.aishu.cn/api/chartrepo/ar/charts"
+  - name: CHART_NAME
+    value: "itops-web-alert-fault"
+  - name: IS_RELEASE
+    value: $[startsWith(variables['Build.SourceBranch'], 'refs/heads/release')]
+  - name: YQ_IMAGE
+    value: "acr.aishu.cn/public/mikefarah/yq:4.26.1"
+  - name: SONARQUBE_IMAGE
+    value: "acr.aishu.cn/public/sonarsource/sonar-scanner-cli:4.7"
+  - name: BUILD_IMAGE
+    value: "acr.aishu.cn/ar/itops-web-alert-fault-base"
+  - name: LintReportName # 此行保持一致
+    value: lint_report.xml
+  - name: UTReportName # 此行保持一致
+    value: ut_report.xml
+  - name: CoverageReportName # 此行保持一致
+    value: coverage_report.xml
+  - name: VERSION
+    value: 0.1.0
+  - name: CHART_VERSION
+    value: 0.1.0
+
+resources:
+  containers:
+    - container: dotnet
+      endpoint: ACRDockerRegistry
+      image: dotnet/runtime:3.1-bullseye-slim
+
+stages:
+  - stage: InitVariable
+    displayName: 初始化版本号
+    jobs:
+      - job: InitVariable
+        pool: anyrobot-pools
+        workspace:
+          clean: all
+        steps:
+          # - checkout: git://AnyRobot/bd_anyrobot-version@$(Build.SourceBranchName)
+          - bash: |
+              set -ex
+              ar_version=$(VERSION)
+              chart_version=$(CHART_VERSION)
+              set +x
+              echo "##vso[task.setvariable variable=AR_VERSION;isoutput=true]$ar_version"
+              set +x
+              echo "##vso[task.setvariable variable=CHART_VERSION;isoutput=true]$chart_version"
+            name: MyOutputVar
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: CodeCheck
+    displayName: 代码检查
+    dependsOn:
+      - InitVariable
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: UploadSonarQube
+        displayName: 上传SonarQube
+        workspace:
+          clean: all
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - checkout: self
+            submodules: true
+          - task: Bash@3
+            displayName: 单元测试
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env bash
+                # set -ex
+
+                # docker run --rm \
+                #       -v $(pwd):/$(CHART_NAME) \
+                #       -v /root/.ssh/id_rsa:/root/.ssh/id_rsa \
+                #       $(BUILD_IMAGE) bash -c "
+                #   set -ex
+                #   mv /anyrobot/web/node_modules /$(CHART_NAME)/web
+                #   cd /$(CHART_NAME)/web
+
+                #   npm run jest
+                #   cp /$(CHART_NAME)/web/coverage/report-name-test.xml /report-name-test.xml
+                #   cp /$(CHART_NAME)/web/coverage/lcov.info /lcov.info
+                #   "
+          - task: Bash@3
+            displayName: 上传SonarQube
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env bash
+                # set -ex
+
+                # APP_NAME=$(CHART_NAME)
+                # INCLUSION_DIR="src/**"
+                # EXCLUSION_DIR="**/coverage/*,**/__tests__/*,**/anyrobot-web-library/*"
+                # GLOBAL_EXCLUSION_DIR="**/coverage/**"
+                # docker run --rm \
+                #         -u root:root \
+                #         -v $(pwd)/web:/src \
+                #         $(SONARQUBE_IMAGE) bash -c "
+                #     set -ex
+                #     cd /src
+                #     sonar-scanner \
+                #       -D sonar.host.url=$(sonarqube.server) \
+                #       -D sonar.projectKey=${APP_NAME} \
+                #       -D sonar.branch.name=$(Build.SourceBranchName) \
+                #       -D sonar.sources=./src \
+                #       -D sonar.exclusions=${EXCLUSION_DIR} \
+                #       -D sonar.tests.inclusions=**/__tests__/* \
+                #       -D sonar.global.exclusions=${GLOBAL_EXCLUSION_DIR} \
+                #       -D sonar.language=js \
+                #       -D sonar.sourceEncoding=UTF-8 \
+                #       -D sonar.testExecutionReportPaths=coverage/report-name-test.xml \
+                #       -D sonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                #       -D sonar.login=$(sonarqube.token)
+                #     "
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: BuildImage
+    displayName: 镜像编译
+    dependsOn:
+      - InitVariable
+      - CodeCheck
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: BuildImage
+        displayName: 镜像编译
+        workspace:
+          clean: all
+        strategy:
+          matrix:
+            amd64:
+              ARCH_TYPE: amd64
+              poolAgentOSArchitecture: X64
+            arm64:
+              ARCH_TYPE: arm64
+              poolAgentOSArchitecture: ARM64
+          maxParallel: 2
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals $(poolAgentOSArchitecture)
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - checkout: self
+            submodules: true
+          - task: Docker@2
+            displayName: 登录容器仓库
+            inputs:
+              containerRegistry: "ACRDockerRegistry"
+              command: "login"
+
+          - task: Bash@3
+            displayName: 镜像编译
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+
+                CURRENT_TAG="$(AR_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_TAG="$(AR_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_TAG="$(AR_VERSION)-$(Build.BuildId)"
+                    LATEST_TAG="$(AR_VERSION)"
+                fi
+
+                CURRENT_IMAGE=$(IMAGE_REGISTRY)$(IMAGE_REPOSITORY):${CURRENT_TAG}.$(ARCH_TYPE)
+                LATEST_IMAGE=$(IMAGE_REGISTRY)$(IMAGE_REPOSITORY):${LATEST_TAG}.$(ARCH_TYPE)
+
+                docker build --rm --no-cache --pull -t ${CURRENT_IMAGE} .
+                docker tag ${CURRENT_IMAGE} ${LATEST_IMAGE}
+                docker push ${CURRENT_IMAGE}
+                docker push ${LATEST_IMAGE}
+                docker rmi ${CURRENT_IMAGE} ${LATEST_IMAGE}
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: MakeManifest
+    displayName: 制作多架构镜像
+    dependsOn:
+      - InitVariable
+      - BuildImage
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: MakeManifest
+        displayName: 制作多架构镜像
+        workspace:
+          clean: all
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - task: Docker@2
+            displayName: 登录容器仓库
+            inputs:
+              containerRegistry: ACRDockerRegistry
+              command: login
+
+          - task: Bash@3
+            displayName: 制作多架构镜像
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+
+                CURRENT_TAG="$(AR_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_TAG="$(AR_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_TAG="$(AR_VERSION)-$(Build.BuildId)"
+                    LATEST_TAG="$(AR_VERSION)"
+                fi
+
+                CURRENT_IMAGE="$(IMAGE_REGISTRY)$(IMAGE_REPOSITORY):${CURRENT_TAG}"
+                LATEST_IMAGE="$(IMAGE_REGISTRY)$(IMAGE_REPOSITORY):${LATEST_TAG}"
+
+                docker manifest create --amend ${CURRENT_IMAGE} ${CURRENT_IMAGE}.amd64 ${CURRENT_IMAGE}.arm64
+                docker manifest create --amend ${LATEST_IMAGE} ${LATEST_IMAGE}.amd64 ${LATEST_IMAGE}.arm64
+
+                docker manifest push -p ${CURRENT_IMAGE}
+                docker manifest push -p ${LATEST_IMAGE}
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: pushChart
+    displayName: Chart构建
+    dependsOn:
+      - InitVariable
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: pushChart
+        displayName: Chart构建
+        workspace:
+          clean: all
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - checkout: self
+          - task: Bash@3
+            displayName: Chart构建
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env
+                set -ex
+
+                CURRENT_TAG="$(AR_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_TAG="$(AR_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_TAG="$(AR_VERSION)-$(Build.BuildId)"
+                    LATEST_TAG="$(AR_VERSION)"
+                fi
+
+                CURRENT_VERSION="$(CHART_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_VERSION="$(CHART_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_VERSION="$(CHART_VERSION)-$(Build.BuildId)"
+                    LATEST_VERSION="$(CHART_VERSION)"
+                fi
+
+                chmod 777 -R $(pwd)/helm
+                docker run --rm \
+                      -v $(pwd)/helm:/chart \
+                      --entrypoint='' \
+                      $(YQ_IMAGE) sh -c "
+                  set -ex
+
+                  yq eval -i '.image.registry = \"$(IMAGE_REGISTRY)\"' /chart/$(CHART_NAME)/values.yaml
+                  yq eval -i '.image.repository = \"$(IMAGE_REPOSITORY)\"' /chart/$(CHART_NAME)/values.yaml
+                  yq eval -i '.image.tag = \"${LATEST_TAG}\"' /chart/$(CHART_NAME)/values.yaml
+
+                  yq eval -i '.name = \"$(CHART_NAME)\"' /chart/$(CHART_NAME)/Chart.yaml
+                  yq eval -i '.appVersion = \"${CURRENT_VERSION}\"' /chart/$(CHART_NAME)/Chart.yaml
+
+                  yq eval -i '.version = \"${CURRENT_VERSION}\"' /chart/$(CHART_NAME)/Chart.yaml
+                  cd /chart && tar -czf $(CHART_NAME)-${CURRENT_VERSION}.tar.gz $(CHART_NAME)
+
+                  yq eval -i '.version = \"${LATEST_VERSION}\"' /chart/$(CHART_NAME)/Chart.yaml
+                  cd /chart && tar -czf $(CHART_NAME)-${LATEST_VERSION}.tar.gz $(CHART_NAME)
+                  "
+
+                cd helm
+                curlOptions="-s -u $(registry.username):$(registry.password) -H \"Content-Type:multipart/form-data\""
+                curl ${curlOptions} -F "chart=@$(CHART_NAME)-${CURRENT_VERSION}.tar.gz;type=application/x-compressed-tar" -X POST "$(CHART_REPO)"
+                curl ${curlOptions} -F "chart=@$(CHART_NAME)-${LATEST_VERSION}.tar.gz;type=application/x-compressed-tar" -X POST "$(CHART_REPO)"
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)

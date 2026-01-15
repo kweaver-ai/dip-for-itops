@@ -1,0 +1,23 @@
+app:
+  mode: release # release gin 运行模式
+
+server:
+  runMode: release # release gin 运行模式
+  httpPort: 13046 #13046
+  readTimeOut: 120
+  writeTimeOut: 120
+  language: zh-CN
+log:
+  filePath: log/itops-alert-manager.log
+  logLevel: info
+  maxSize: 10
+  maxAge: 10
+  maxBackups: 100
+  compress: false
+  development: false  # 是否开启开发模式，开启后日志会同步打印到标准输出，同时会打印更详细的堆栈信息
+  developMode: false
+mysql:
+  host: mariadb-mariadb-master.resource # mariadb-mariadb-master.resource
+  port: 3330 #3330
+  username: root  # anyshare
+  password: eisoo.com123  # eisoo.com123

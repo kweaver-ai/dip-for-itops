@@ -1,0 +1,501 @@
+# Azure Pipeline for itops-alert-analysis
+# 告警分析服务 CI/CD 配置
+#
+# 项目结构:
+#   - 源代码目录: server/
+#   - 主程序: server/main.go
+#   - Docker 镜像: ar/itops-alert-analysis
+#   - Helm Chart: alert-analysis (目录名: alert-analysis)
+#   - 编译产物: alert-analysis-server
+#
+# 构建流程:
+#   1. 初始化版本号
+#   2. 代码检查（Lint + UT + Coverage）
+#   3. 构建多架构镜像（amd64 + arm64）
+#   4. 制作多架构 manifest
+#   5. 打包并推送 Helm Chart
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - "feature-*"
+      - "feature/*"
+      - "develop"
+      - "release-*"
+      - "release/*"
+      - "patch-*"
+
+variables:
+  - group: anyrobot-global-config
+  - name: IMAGE_REGISTRY
+    value: "acr.aishu.cn"
+  - name: IMAGE_REPOSITORY
+    value: "ar/itops-alert-analysis"
+  - name: CHART_REPO
+    value: "https://acr.aishu.cn/api/chartrepo/ar/charts"
+  - name: CHART_NAME
+    value: "itops-alert-analysis"
+  - name: IS_RELEASE
+    value: $[startsWith(variables['Build.SourceBranch'], 'refs/heads/release')]
+  - name: BUILD_IMAGE
+    value: "acr.aishu.cn/ar/go.build:1.24.11-20251203"
+  - name: BASE_IMAGE
+    value: "acr.aishu.cn/public/ubuntu:22.04.20251014"
+  - name: YQ_IMAGE
+    value: "acr.aishu.cn/public/mikefarah/yq:4.26.1"
+  - name: LintReportName # 此行保持一致
+    value: lint_report.xml
+  - name: UTReportName # 此行保持一致
+    value: ut_report.xml
+  - name: CoverageReportName # 此行保持一致
+    value: coverage_report.xml
+
+parameters:
+  - name: TRIVY_EXIT_CODE
+    displayName: trivy exit code
+    type: number
+    default: 1
+    values:
+      - 0
+      - 1
+  - name: SKIP_SONARQUBE
+    displayName: skip sonarqube
+    type: number
+    default: 0
+    values:
+      - 0
+      - 1
+
+resources:
+  containers:
+    - container: dotnet
+      endpoint: ACRDockerRegistry
+      image: dotnet/runtime:3.1-bullseye-slim
+  repositories:
+    - repository: templatesAlias
+      type: git
+      name: ONE-Architecture\Yaml-Templates
+      ref: "refs/heads/main"
+    - repository: arPipelineTemplates
+      type: git
+      name: AnyRobot\PipelineTemplates
+      ref: "refs/heads/develop"
+
+stages:
+  - stage: InitVariable
+    displayName: 初始化版本号
+    jobs:
+      - job: InitVariable
+        pool: anyrobot-pools
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+
+          - bash: |
+              set -ex
+
+              # 从项目根目录的 VERSION 文件中读取版本号
+              # 文件格式示例：
+              # VERSION=5.1
+              # CHART_VERSION=5.1
+
+              if [ -f VERSION ]; then
+                source VERSION
+                ar_version=${VERSION}
+                chart_version=${CHART_VERSION}
+              else
+                echo "错误：VERSION 文件不存在"
+                exit 1
+              fi
+
+              set +x
+              echo "##vso[task.setvariable variable=AR_VERSION;isoutput=true]$ar_version"
+              set +x
+              echo "##vso[task.setvariable variable=CHART_VERSION;isoutput=true]$chart_version"
+
+              echo "读取到的版本号: AR_VERSION=$ar_version, CHART_VERSION=$chart_version"
+            name: MyOutputVar
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: CodeCheck
+    displayName: 代码检查
+    dependsOn:
+      - InitVariable
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: CodeCheck
+        displayName: 代码检查
+        workspace:
+          clean: all
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - checkout: self
+
+          - task: Bash@3
+            displayName: 单元测试
+            inputs:
+              targetType: inline
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+
+                docker run --rm \
+                      -v $(pwd):/alert-analysis \
+                      -v /root/.ssh/id_rsa:/root/.ssh/id_rsa \
+                      -e GOPROXY='$(go.proxy)' \
+                      $(BUILD_IMAGE) bash -c "
+                  set -ex
+
+                  echo machine devops.aishu.cn login AnyRobot password $(System.AccessToken) > ~/.netrc
+
+                  cd /alert-analysis/server
+                  go mod download -x
+                  mkdir -p /alert-analysis/server/report
+                  go test -gcflags=all=-l -v -coverprofile=report/ut_coverage.out ./... 2>&1 | go-junit-report > report/$(UTReportName)
+                  gocov convert report/ut_coverage.out | gocov-xml > report/$(CoverageReportName)
+                  go tool cover --html=report/ut_coverage.out -o report/ut_coverage.html
+                  golangci-lint run --timeout=10m --out-format junit-xml ./... > report/$(LintReportName)
+                  "
+
+          - template: sonarqube-setps.yml@arPipelineTemplates
+            parameters:
+              SKIP_SONARQUBE: ${{ parameters.SKIP_SONARQUBE }}
+              SONAR_PROJECT_DIR: server
+
+          - task: PublishBuildArtifacts@1 # 将相应目录publish到artifact
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/server/report"
+              ArtifactName: CodeCheckReportFiles
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+      - job: UploadReport
+        displayName: 上传检查报告
+        container: dotnet
+        dependsOn: CodeCheck
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: CodeCheckReportFiles
+              downloadPath: $(Build.BinariesDirectory)
+
+          - task: PublishTestResults@2
+            displayName: 发布Lint测试报告
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "$(Build.BinariesDirectory)/CodeCheckReportFiles/$(LintReportName)"
+              testRunTitle: "Lint Result"
+              failTaskOnFailedTests: false
+
+          - task: BuildQualityChecks@8 # 此行保持一致 Lint卡点
+            displayName: Quality Gate Lint # 此行保持一致
+            inputs:
+              checkWarnings: true # 此行保持一致
+              warningFailOption: "fixed"
+              warningThreshold: "0"
+              showStatistics: false
+              evaluateTaskWarnings: false
+              evaluateFileWarnings: true
+              warningFilesFolder: "$(Build.BinariesDirectory)/CodeCheckReportFiles"
+              warningFiles: "**/$(LintReportName)" # 此行保持一致
+              warningFileFilters: '/^.+<\/failure>.*?$/'
+              warningFilesArtifact: "CodeCheckReportFiles"
+
+          - task: PublishTestResults@2
+            displayName: 发布UT测试报告
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "$(Build.BinariesDirectory)/CodeCheckReportFiles/$(UTReportName)"
+              testRunTitle: "UT Result"
+              failTaskOnFailedTests: false
+
+          - task: BuildQualityChecks@8 # 此行保持一致 # UT卡点
+            displayName: Quality Gate UT # 此行保持一致
+            inputs:
+              checkWarnings: true # 此行保持一致
+              warningFailOption: "fixed"
+              warningThreshold: "0"
+              showStatistics: false
+              evaluateTaskWarnings: false
+              evaluateFileWarnings: true
+              warningFilesFolder: "$(Build.BinariesDirectory)/CodeCheckReportFiles"
+              warningFiles: "**/$(UTReportName)" # 此行保持一致
+              warningFileFilters: '/^.+<\/failure>.*?$/'
+              warningFilesArtifact: "CodeCheckReportFiles"
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 发布UT测试覆盖率报告
+            inputs:
+              codeCoverageTool: "Cobertura"
+              summaryFileLocation: "$(Build.BinariesDirectory)/CodeCheckReportFiles/$(CoverageReportName)"
+
+          - task: BuildQualityChecks@8 # 此行保持一致 代码覆盖率卡点
+            displayName: Quality Gate Coverage # 此行保持一致
+            inputs:
+              coverageType: "lines" # 代表行覆盖率
+              coverageFailOption: "fixed" # fixed 严格模式 、changed 宽松模式
+              checkCoverage: true  # 此行保持一致, false 关闭覆盖率检查/ true 开启覆盖率检查
+              coverageThreshold: "60" # 代码覆盖率卡点阈值
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: BuildImage
+    displayName: 镜像编译
+    dependsOn:
+      - InitVariable
+      - CodeCheck
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: BuildImage
+        displayName: 镜像编译
+        workspace:
+          clean: all
+        strategy:
+          matrix:
+            amd64:
+              ARCH_TYPE: amd64
+              poolAgentOSArchitecture: X64
+            arm64:
+              ARCH_TYPE: arm64
+              poolAgentOSArchitecture: ARM64
+          maxParallel: 2
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals $(poolAgentOSArchitecture)
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - checkout: self
+
+          - task: Docker@2
+            displayName: 登录容器仓库
+            inputs:
+              containerRegistry: "ACRDockerRegistry"
+              command: "login"
+
+          - task: Bash@3
+            name: BuildImageTask
+            displayName: 镜像编译
+            inputs:
+              targetType: inline
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+
+                cp ~/.ssh/id_rsa id_rsa
+                echo machine devops.aishu.cn login AnyRobot password $(System.AccessToken) > .netrc
+
+                CURRENT_TAG="$(AR_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_TAG="$(AR_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_TAG="$(AR_VERSION)-$(Build.BuildId)"
+                    LATEST_TAG="$(AR_VERSION)"
+                fi
+
+                CURRENT_IMAGE="$(IMAGE_REGISTRY)/$(IMAGE_REPOSITORY):${CURRENT_TAG}.$(ARCH_TYPE)"
+                LATEST_IMAGE="$(IMAGE_REGISTRY)/$(IMAGE_REPOSITORY):${LATEST_TAG}.$(ARCH_TYPE)"
+
+                docker build --force-rm --no-cache --pull -t ${CURRENT_IMAGE} -f docker/Dockerfile \
+                  --build-arg GOPROXY_URL=$(go.proxy) \
+                  --build-arg BUILD_IMAGE=$(BUILD_IMAGE) \
+                  --build-arg BASE_IMAGE=$(BASE_IMAGE) .
+
+                set +x
+                echo "##vso[task.setvariable variable=CURRENT_IMAGE;isoutput=true]$CURRENT_IMAGE"
+                set +x
+                echo "##vso[task.setvariable variable=LATEST_IMAGE;isoutput=true]$LATEST_IMAGE"
+
+          - template: scan-image-step.yml@templatesAlias
+            parameters:
+              imageName: $(BuildImageTask.CURRENT_IMAGE)
+              exitCode: ${{ parameters.TRIVY_EXIT_CODE }}
+              scanTimeout: 10m
+
+          - task: Bash@3
+            displayName: 推送镜像
+            inputs:
+              targetType: inline
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+                docker tag $(BuildImageTask.CURRENT_IMAGE) $(BuildImageTask.LATEST_IMAGE)
+                docker push $(BuildImageTask.CURRENT_IMAGE)
+                docker push $(BuildImageTask.LATEST_IMAGE)
+                docker rmi $(BuildImageTask.CURRENT_IMAGE) $(BuildImageTask.LATEST_IMAGE)
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                docker ps -a -q -f status=exited | xargs -I {} docker rm {}
+                docker images -q -f dangling=true | xargs -I {} docker rmi {}
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: MakeManifest
+    displayName: 制作多架构镜像
+    dependsOn:
+      - InitVariable
+      - BuildImage
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: MakeManifest
+        displayName: 制作多架构镜像
+        workspace:
+          clean: all
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - task: Docker@2
+            displayName: 登录容器仓库
+            inputs:
+              containerRegistry: ACRDockerRegistry
+              command: login
+
+          - task: Bash@3
+            displayName: 制作多架构镜像
+            inputs:
+              targetType: inline
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+
+                CURRENT_TAG="$(AR_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_TAG="$(AR_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_TAG="$(AR_VERSION)-$(Build.BuildId)"
+                    LATEST_TAG="$(AR_VERSION)"
+                fi
+
+                CURRENT_IMAGE="$(IMAGE_REGISTRY)/$(IMAGE_REPOSITORY):${CURRENT_TAG}"
+                LATEST_IMAGE="$(IMAGE_REGISTRY)/$(IMAGE_REPOSITORY):${LATEST_TAG}"
+
+                docker manifest create --amend ${CURRENT_IMAGE} ${CURRENT_IMAGE}.amd64 ${CURRENT_IMAGE}.arm64
+                docker manifest create --amend ${LATEST_IMAGE} ${LATEST_IMAGE}.amd64 ${LATEST_IMAGE}.arm64
+
+                docker manifest push -p ${CURRENT_IMAGE}
+                docker manifest push -p ${LATEST_IMAGE}
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)
+
+  - stage: ChartPush
+    displayName: Chart构建
+    dependsOn:
+      - InitVariable
+    variables:
+      AR_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.AR_VERSION']]
+      CHART_VERSION: $[stageDependencies.InitVariable.InitVariable.outputs['MyOutputVar.CHART_VERSION']]
+    jobs:
+      - job: ChartPush
+        displayName: Chart构建
+        workspace:
+          clean: all
+        pool:
+          name: anyrobot-pools
+          demands:
+            - Agent.OSArchitecture -equals X64
+            - Agent.OS -equals Linux
+            - docker
+        steps:
+          - checkout: self
+
+          - task: Bash@3
+            displayName: Chart构建
+            inputs:
+              targetType: inline
+              script: |
+                #!/usr/bin/env
+                set -ex
+
+                CURRENT_TAG="$(AR_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_TAG="$(AR_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_TAG="$(AR_VERSION)-$(Build.BuildId)"
+                    LATEST_TAG="$(AR_VERSION)"
+                fi
+
+                CURRENT_VERSION="$(CHART_VERSION)-$(Build.SourceBranchName).$(Build.BuildId)"
+                LATEST_VERSION="$(CHART_VERSION)-$(Build.SourceBranchName)"
+                if [ $(IS_RELEASE) = True ]; then
+                    CURRENT_VERSION="$(CHART_VERSION)-$(Build.BuildId)"
+                    LATEST_VERSION="$(CHART_VERSION)"
+                fi
+
+                chmod 777 -R $(pwd)/helm
+                docker run --rm \
+                      -v $(pwd)/helm:/chart \
+                      --entrypoint='' \
+                      $(YQ_IMAGE) sh -c "
+                  set -ex
+
+                  yq eval -i '.image.registry = \"$(IMAGE_REGISTRY)\"' /chart/$(CHART_NAME)/values.yaml
+                  yq eval -i '.image.repository = \"$(IMAGE_REPOSITORY)\"' /chart/$(CHART_NAME)/values.yaml
+                  yq eval -i '.image.tag = \"${LATEST_TAG}\"' /chart/$(CHART_NAME)/values.yaml
+
+                  yq eval -i '.name = \"$(CHART_NAME)\"' /chart/$(CHART_NAME)/Chart.yaml
+                  yq eval -i '.appVersion = \"${CURRENT_VERSION}\"' /chart/$(CHART_NAME)/Chart.yaml
+                  sed -i 's/\"version\": .*/\"version\": \"${CURRENT_VERSION}\",/g' /chart/$(CHART_NAME)/_componentMeta.json
+
+                  yq eval -i '.version = \"${CURRENT_VERSION}\"' /chart/$(CHART_NAME)/Chart.yaml
+                  cd /chart && tar -czf $(CHART_NAME)-${CURRENT_VERSION}.tar.gz $(CHART_NAME)
+
+                  yq eval -i '.version = \"${LATEST_VERSION}\"' /chart/$(CHART_NAME)/Chart.yaml
+                  cd /chart && tar -czf $(CHART_NAME)-${LATEST_VERSION}.tar.gz $(CHART_NAME)
+                  "
+
+                cd helm
+                curlOptions="-s -u $(registry.username):$(registry.password) -H \"Content-Type:multipart/form-data\""
+                curl ${curlOptions} -F "chart=@$(CHART_NAME)-${CURRENT_VERSION}.tar.gz;type=application/x-compressed-tar" -X POST "$(CHART_REPO)"
+                curl ${curlOptions} -F "chart=@$(CHART_NAME)-${LATEST_VERSION}.tar.gz;type=application/x-compressed-tar" -X POST "$(CHART_REPO)"
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+                ls -lah $(Agent.BuildDirectory)

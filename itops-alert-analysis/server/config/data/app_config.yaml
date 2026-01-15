@@ -1,0 +1,20 @@
+# 业务配置（由远程配置服务动态更新）
+credentials:
+  authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+knowledge_network:
+  knowledge_id: "kn-12345678"
+
+ingest:
+  source:
+    type: "zabbix_webhook"
+
+fault_point:
+  expiration:
+    enabled: true
+    expiration_time: 1h
+
+problem:
+  expiration:
+    enabled: true
+    expiration_time: 1h

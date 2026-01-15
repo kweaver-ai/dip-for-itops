@@ -1,0 +1,50 @@
+paths:
+  /v3/chat:
+    post:
+      tags:
+        - chat
+      operationId: createChat
+      summary: 发起对话
+      description: 创建一次对话，支持上下文对话或单轮对话，可选择流式或非流式返回。
+      parameters:
+        - name: conversation_id
+          in: query
+          required: false
+          description: 继续历史对话时的会话 ID，不传则创建新对话。
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer {AccessToken}。
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: false
+          description: 请求内容类型，默认为 application/json。
+          schema:
+            type: string
+            default: application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./chat.schemas.yaml#/components/schemas/ChatRequest
+      responses:
+        "200":
+          description: 非流式响应或流式起始
+          content:
+            application/json:
+              schema:
+                $ref: ./chat.schemas.yaml#/components/schemas/ChatResponse
+            text/event-stream:
+              schema:
+                $ref: ./chat.schemas.yaml#/components/schemas/StreamEvent
+        default:
+          description: 错误响应
+          content:
+            application/json:
+              schema:
+                $ref: ./chat.schemas.yaml#/components/schemas/ErrorResponse

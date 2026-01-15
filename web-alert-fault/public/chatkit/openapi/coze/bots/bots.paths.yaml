@@ -1,0 +1,48 @@
+paths:
+  /v1/bots/{bot_id}:
+    get:
+      tags:
+        - bots
+      operationId: getBotInfo
+      summary: 查看智能体配置
+      description: 获取指定智能体的配置详情，支持读取发布版或草稿版。
+      parameters:
+        - name: bot_id
+          in: path
+          required: true
+          description: 智能体 ID，路径参数需使用 encodeURIComponent 编码。
+          schema:
+            type: string
+        - name: is_published
+          in: query
+          required: false
+          description: 是否读取发布版配置；true 为发布版，false 为草稿版。
+          schema:
+            type: boolean
+            default: true
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer {AccessToken}。
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: false
+          description: 请求内容类型，默认为 application/json。
+          schema:
+            type: string
+            default: application/json
+      responses:
+        "200":
+          description: 请求成功
+          content:
+            application/json:
+              schema:
+                $ref: ./bots.schemas.yaml#/components/schemas/BotInfoResponse
+        default:
+          description: 非 200 响应
+          content:
+            application/json:
+              schema:
+                $ref: ./bots.schemas.yaml#/components/schemas/BotInfoResponse

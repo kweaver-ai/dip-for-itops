@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.dipModule }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  config.yaml: |
+    server:
+      {{- range $key, $val := .Values.config.server }}
+      {{ $key }}: {{ $val }}
+      {{- end }}
+    log:
+      {{- range $key, $val := .Values.config.log }}
+      {{ $key }}: {{ $val }}
+      {{- end }}
+    mysql:
+      {{- range $key, $val := .Values.config.mysql }}
+      {{ $key }}: {{ $val }}
+      {{- end }}

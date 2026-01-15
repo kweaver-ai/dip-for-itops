@@ -1,0 +1,88 @@
+# API 服务配置
+api:
+  port: 13047
+
+# 日志配置
+log:
+  filepath: /var/log/itops-alert-analysis/itops-alert-analysis.log
+  level: info                 # 日志级别: debug, info, warn, error
+  max_size: 10                # 每个日志文件最大空间(MB)
+  max_age: 10                 # 文件最多保留天数
+  max_backups: 100            # 文件最多保留备份数
+  compress: false             # 是否压缩
+  development: true           # 是否开启开发模式
+
+# 平台配置
+platform:
+  base_url: "https://your-platform-host:443"
+  timeout: 120s               # 默认请求超时时间
+  insecure_skip_verify: true  # 是否跳过 SSL 验证
+
+  # AI Agent 配置
+  agents:
+    # 问题摘要 Agent - 生成问题现象描述和影响说明
+    problem_summary:
+      app_id: "your-problem-summary-app-id"
+      agent_key: "your-problem-summary-agent-key"
+
+    # 因果分析 Agent - 分析故障点之间的因果关系
+    causal_analysis:
+      app_id: "your-causal-analysis-app-id"
+      agent_key: "your-causal-analysis-agent-key"
+
+# 远程配置服务
+app_config_service:
+  endpoint: "http://itops-alert-manager-dip.dip:13046/api/itops_alert_manager/v1/in/config"
+  refresh_interval: 30s       # 配置刷新间隔
+  enabled: true               # 是否启用远程配置
+
+# Kafka 配置
+kafka:
+  # 原始事件流（HTTP -> Correlation）
+  raw_events:
+    topic: itops_alert_raw_event
+    consumer_group: itops-alert-analysis-consumer
+
+  # 问题事件流（Correlation -> RCA）
+  problem_events:
+    topic: itops_alert_problem_event
+    consumer_group: itops-alert-analysis-rca-consumer
+
+# 依赖服务配置
+depServices:
+  class-443:
+    ingressClass: class-443
+
+  # 消息队列配置
+  mq:
+    auth:
+      mechanism: PLAIN
+      password: your-mq-password
+      username: your-mq-username
+    mqHost: your-kafka-host
+    mqPort: 31000
+    mqType: kafka
+    protocol: sasl_plaintext
+    tenant: default
+
+  # OpenSearch 配置
+  opensearch:
+    host: your-opensearch-host
+    port: 30000
+    protocol: http
+    user: admin
+    password: your-opensearch-password
+
+  # Redis 配置
+  redis:
+    connectInfo:
+      masterGroupName: mymaster
+      password: your-redis-password
+      sentinelHost: your-sentinel-host
+      sentinelPassword: ""
+      sentinelPort: 6379
+      sentinelUsername: root
+      username: root
+    connectType: sentinel
+    database: 0
+

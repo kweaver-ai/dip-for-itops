@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm uninstall:*)",
+      "WebFetch(domain:kcnk6oub5282.feishu.cn)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "WebFetch(domain:accounts.feishu.cn)",
+      "Bash(git checkout:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__figma-desktop__get_design_context",
+      "mcp__figma-desktop__get_screenshot",
+      "mcp__figma-desktop__get_metadata"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

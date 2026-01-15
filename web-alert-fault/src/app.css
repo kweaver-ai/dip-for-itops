@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+}
+
+.ar-ant-app {
+  height: 100%;
+}
+
+.ar-ant-table-column-title,
+.ar-ant-table-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

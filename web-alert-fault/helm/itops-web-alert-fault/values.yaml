@@ -1,0 +1,57 @@
+namespace: dip
+cluster: dip
+dipModule: itops-web-alert-fault
+replicaCount: 1
+nodeSelector: {}
+image:
+  registry: acr.aishu.cn
+  repository: /ar/itops-web-alert-fault
+  tag: tag
+  pullPolicy: IfNotPresent
+env:
+  language: en_US.UTF-8
+  timezone: Asia/Shanghai
+service:
+  ingressclassname: "class-443"
+  enableDualStack: false
+  type: ClusterIP
+  port: 5612
+  language: zh_CN
+  name: web-alert-fault
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 30
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 30
+    failureThreshold: 3
+    successThreshold: 1
+  ingress:
+    - port: 5612
+      path: /alert-fault/(.*)
+
+# 微服务通信依赖配置
+depServices: {}
+
+# 安全配置
+securityContext: {}
+
+# 反亲和性设置
+antiAffinity:
+  enabled: false
+  rule: "soft" # 可选参数 hard, soft
+# 节点容忍度配置
+tolerations: []
+
+# 资源配置
+resources:
+  requests:
+    cpu: 0
+    memory: 0Gi
+  limits:
+    cpu: 2
+    memory: 4Gi

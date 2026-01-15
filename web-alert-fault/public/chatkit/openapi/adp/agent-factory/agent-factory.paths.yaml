@@ -1,0 +1,39 @@
+paths:
+  /agent-factory/v3/agent-market/agent/{agent_id}/version/v0:
+    get:
+      operationId: getAgentDetail
+      summary: 获取agent详情
+      description: |
+        获取agent详情
+          - v0版本的 agent 详情
+          - 如果是已发布的agent，最新版本和v0版本一致
+      tags:
+      - agent-factory
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID。
+          schema:
+            type: string
+        - name: x-business-domain
+          in: header
+          required: true
+          description: 智能体所属的业务域。
+          schema:
+            type: string
+      responses:
+        200:
+          description: 请求成功
+          content:
+            application/json:
+              schema:
+                $ref: ./agent-factory.schemas.yaml#/components/schemas/detail
+        '400':
+          $ref: ./agent-factory.schemas.yaml#/components/responses/400
+        '401':
+          $ref: ./agent-factory.schemas.yaml#/components/responses/401
+        '403':
+          $ref: ./agent-factory.schemas.yaml#/components/responses/403
+        '500':
+          $ref: ./agent-factory.schemas.yaml#/components/responses/500

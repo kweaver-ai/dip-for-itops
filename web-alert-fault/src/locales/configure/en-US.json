@@ -1,0 +1,10 @@
+{
+  "connection": "Platform Connection",
+  "authToken": "Authentication Token",
+  "knowledgeNetwork": "Knowledge Network",
+  "faultPointConvergenceStrategy": "Fault Point Convergence Strategy",
+  "timeCorrelation": "Time Correlation",
+  "faultPointAssociationStrategy": "Fault Point Association Strategy",
+  "authTokenRequired": "Please input authentication token",
+  "knowledgeNetworkRequired": "Please select knowledge network"
+}

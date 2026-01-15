@@ -1,0 +1,291 @@
+components:
+  schemas:
+    CreateConversationRequest:
+      type: object
+      description: 创建会话请求体。
+      properties:
+        agent_id:
+          type: string
+          description: agent ID。
+        agent_version:
+          type: string
+          description: agent 版本，不传则默认使用最新发布版本。
+        executor_version:
+          type: string
+          description: 智能体执行服务 ID。
+      required:
+        - agent_id
+        - agent_version
+    ChatCompletionRequest:
+      type: object
+      description: 对话请求体。
+      properties:
+        agent_id:
+          type: string
+          description: agent ID。
+        agent_version:
+          type: string
+          description: agent 版本，不传则默认使用最新发布版本。
+        conversation_id:
+          type: string
+          description: 会话 ID。
+        custom_querys:
+          type: object
+          description: 自定义输入变量，map[string]any。
+        inc_stream:
+          type: boolean
+          description: 是否增量流式返回。
+        query:
+          type: string
+          description: 用户输入的问题。
+        stream:
+          type: boolean
+          description: 是否流式返回。
+      required:
+        - query
+        - agent_id
+        - conversation_id
+        - stream
+    ConversationResponse:
+      description: 会话创建响应。
+      type: object
+      properties:
+        id:
+          description: 新会话 ID。
+          type: string
+        ttl:
+          description: 会话过期时间，单位秒。
+          type: string
+    AgentInfo:
+      type: object
+      properties:
+        agent_id:
+          description: Agent ID。
+          type: string
+        agent_name:
+          description: Agent 名称。
+          type: string
+        agent_status:
+          description: Agent 状态。
+          type: string
+        agent_version:
+          description: Agent 版本。
+          type: string
+    Answer:
+      type: object
+      properties:
+        ask:
+          nullable: true
+          type: object
+        cites:
+          nullable: true
+          type: object
+        text:
+          type: string
+    Arg:
+      type: object
+      properties:
+        name:
+          description: 参数名称。
+          type: string
+        type:
+          description: 参数类型。
+          type: string
+        value:
+          description: 参数值。
+          type: string
+    ChatResponse:
+      type: object
+      properties:
+        assistant_message_id:
+          description: 助手消息 ID。
+          type: string
+        conversation_id:
+          description: 会话 ID。
+          type: string
+        message:
+          $ref: '#/components/schemas/Message'
+        status:
+          description: 状态。
+          type: string
+        user_message_id:
+          description: 用户消息 ID。
+          type: string
+    Content:
+      type: object
+      properties:
+        final_answer:
+          $ref: '#/components/schemas/FinalAnswer'
+        middle_answer:
+          items:
+            $ref: '#/components/schemas/MiddleAnswer'
+          type: array
+        temp_files:
+          items:
+            $ref: '#/components/schemas/TempFile'
+          type: array
+        text:
+          type: string
+    FinalAnswer:
+      type: object
+      description: 最终结果。
+      properties:
+        answer:
+          $ref: '#/components/schemas/Answer'
+        query:
+          type: string
+        skill_process:
+          items:
+            $ref: '#/components/schemas/SkillsProcessItem'
+          type: array
+        temp_files:
+          items:
+            $ref: '#/components/schemas/TempFile'
+          type: array
+        thinking:
+          type: string
+    Message:
+      type: object
+      properties:
+        agent_info:
+          $ref: '#/components/schemas/AgentInfo'
+        content:
+          $ref: '#/components/schemas/Content'
+        content_type:
+          description: 内容类型。
+          type: string
+        conversation_id:
+          description: 会话 ID。
+          type: string
+        id:
+          description: 消息 ID。
+          type: string
+        index:
+          description: 消息下标,用于标记消息在整个会话中的位置、顺序，比如基于 index 正序在前端按照时间线展示对话消息。
+          type: integer
+        reply_id:
+          description: '回复ID,用于关联问答消息'
+          type: string
+        role:
+          description: '角色 user, assistant'
+          type: string
+        status:
+          description: 消息状态。
+          type: string
+    MiddleAnswer:
+      type: object
+      properties:
+        doc_retrieval:
+          description: 文档召回结果。
+          type: object
+        graph_retrieval:
+          description: 图谱召回结果。
+          type: object
+        middle_output_vars:
+          description: 中间结果。
+          items:
+            type: object
+          type: array
+        progress:
+          description: dolphin执行过程。
+          items:
+            $ref: '#/components/schemas/Progress'
+          type: array
+    Progress:
+      type: object
+      properties:
+        agent_name:
+          description: 兼容旧版本字段，代理名称，对于LLM输出通常为"main"，对于工具调用为工具名称。
+          type: string
+        answer:
+          description: 该阶段产生的答案或输出。
+          type: string
+        block_answer:
+          description: 块级别的答案输出。
+          type: string
+        input_message:
+          description: 输入消息，可能是字符串或消息对象数组。
+          type: object
+        interrupted:
+          description: 是否被中断。
+          type: boolean
+        skill_info:
+          $ref: '#/components/schemas/SkillInfo'
+        stage:
+          description: 执行阶段类型。
+          enum:
+            - llm (LLM输出)
+            - skill (技能/工具调用)
+            - assign (赋值操作)
+          type: string
+        status:
+          description: 执行状态。
+          enum:
+            - processing (进行中)
+            - completed (已完成)
+            - failed (失败)
+          type: string
+        think:
+          description: 思考过程记录。
+          type: string
+    RelatedQuestion:
+      type: object
+      description: 相关查询。
+      properties:
+        query:
+          type: string
+    SkillInfo:
+      type: object
+      properties:
+        args:
+          items:
+            $ref: '#/components/schemas/Arg'
+          type: array
+        checked:
+          description: 参数是否已验证。
+          type: boolean
+        name:
+          description: 技能/工具名称。
+          type: string
+        type:
+          description: 技能类型。
+          enum:
+            - TOOL
+            - AGENT
+            - MCP
+          type: string
+    SkillsProcessItem:
+      description: 技能处理结果。
+      type: object
+      properties:
+        agent_name:
+          type: string
+        cites:
+          nullable: true
+          type: object
+        input_message:
+          nullable: true
+          type: object
+        interrupted:
+          type: boolean
+        related_queries:
+          items:
+            $ref: '#/components/schemas/RelatedQuestion'
+          type: array
+        status:
+          type: string
+        text:
+          type: string
+        thinking:
+          type: string
+        type:
+          type: string
+    TempFile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string

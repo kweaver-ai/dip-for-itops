@@ -1,0 +1,115 @@
+.layout-wrapper {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.fault-cards-title {
+  height: 28px;
+  color: #126ee3;
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.fault-cards-container {
+  width: 100%;
+  height: calc(100% - 40px);
+  padding-left: 8px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.card-wrapper {
+  width: 250px;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  background-color: #ffffff;
+  border-radius: 0 4px 4px 0;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  position: relative;
+  border-top: 1px solid rgba(0,0,0,0.15);
+  border-right: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  overflow: hidden;
+
+  &::after {
+    width: 24px;
+    height: 12px;
+    text-align: center;
+    line-height: 16px;
+    content: 'AI';
+    font-size: 8px;
+    color: #8614fa;
+    background-color: #f3e6ff;
+    vertical-align: super;
+    position: absolute;
+    font-weight: bold;
+    top: -4px;
+    right: -10px;
+    transform: rotate(45deg);
+  }
+}
+
+.fault-card-active {
+  background-color: #d7e5f6;
+  border-top: 1px solid #126ee3;
+  border-right: 1px solid #126ee3;
+  border-bottom: 1px solid #126ee3;
+}
+
+
+
+.fault-info-top {
+   width: calc(100% - 60px);
+}
+
+.fault-title {
+  width: 100%;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-wrapper {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.fault-tag {
+  padding-right: 10px;
+}
+
+.fault-node-icon {
+  width: 16px;
+  height: 16px;
+  background-color: #bbb;
+  color: #fff;
+  border-radius: 16px;
+  text-align: center;
+  line-height: 16px;
+  font-size: 10px;
+}
+
+.fault-node-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fault-node {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.fault-events-num {
+  color: #126ee3;
+  font-weight: bold;
+}

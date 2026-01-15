@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>恢复</title>
+    <g id="告警与故障分析" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="问题-故障点" transform="translate(-576, -333)">
+            <g id="编组" transform="translate(371, 221)">
+                <g id="恢复" transform="translate(205, 112)">
+                    <circle id="椭圆形-2备份-4" fill="#FFFFFF" cx="8" cy="8" r="8"></circle>
+                    <g id="1、通用/2、icon/7、仪表盘/正常" transform="translate(2, 2)">
+                        <rect id="矩形" fill="#000000" fill-rule="nonzero" opacity="0" x="0" y="0" width="12" height="12"></rect>
+                        <g id="02" stroke-width="1" fill-rule="evenodd" transform="translate(0.75, 0.75)" fill="#07C393">
+                            <path d="M5.25,0.75 C7.73400001,0.75 9.75,2.76599999 9.75,5.25 C9.75,7.73400001 7.734,9.75 5.25,9.75 C2.76599999,9.75 0.75,7.73400001 0.75,5.25 C0.75,2.76599999 2.76599999,0.75 5.25,0.75 M5.25,0 C2.3532,0 0,2.3532 0,5.25 C0,8.1468 2.3532,10.5 5.25,10.5 C8.1468,10.5 10.5,8.1468 10.5,5.25 C10.5,2.3532 8.1468,0 5.25,0 L5.25,0 Z M4.6692,7.47600001 L4.566,7.57860001 L4.5456,7.5588 C4.48986215,7.58591447 4.42878075,7.60026245 4.3668,7.6008 C4.27983583,7.59839432 4.19576468,7.56904279 4.1262,7.5168 L4.116,7.527 L4.0644,7.4754 L4.0632,7.4748 L2.2974,5.7108 L2.9034,5.1048 L4.3674,6.56640001 L7.596,3.3402 L8.2026,3.9462 L4.6704,7.4748 L4.6692,7.4754 L4.6692,7.47600001 Z" id="形状" fill-rule="nonzero"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
