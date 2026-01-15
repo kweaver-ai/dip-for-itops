@@ -59,7 +59,7 @@ config:
     host: mariadb-mariadb-master.resource # mariadb-mariadb-master.resource
     port: 3330 #3330
     username: root  # anyshare
-    password: eisoo.com123  # eisoo.com123
+    password: 12345678  # 数据库密码
 # storage:
 #   capacity: 10Gi
 #   storageClassName: ""
