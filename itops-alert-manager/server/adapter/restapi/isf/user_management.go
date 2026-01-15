@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/rest"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/common/log"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 )
 
 type userManagementClient struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/infrastructure/db"
-	_ "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/driver"
+	_ "github.com/kweaver-ai/proton-rds-sdk-go/driver"
 )
 
 func InitDataBase() {

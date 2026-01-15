@@ -1,10 +1,10 @@
 package uniquery
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/rest"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/core"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/domain/dependency"
 	"github.com/google/wire"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 )
 
 var ProviderSet = wire.NewSet(NewHTTPClient, NewUniQueryClient)

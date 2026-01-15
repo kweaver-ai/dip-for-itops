@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/rest"
 	"github.com/gin-gonic/gin"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 )
 
 type HandlerRoute struct {

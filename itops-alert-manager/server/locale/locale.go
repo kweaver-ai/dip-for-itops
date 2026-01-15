@@ -6,7 +6,7 @@ import (
 	"path"
 	"runtime"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/i18n"
+	"github.com/kweaver-ai/kweaver-go-lib/i18n"
 )
 
 var (

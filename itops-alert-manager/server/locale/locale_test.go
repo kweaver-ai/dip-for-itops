@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/i18n"
 	"github.com/agiledragon/gomonkey/v2"
+	"github.com/kweaver-ai/kweaver-go-lib/i18n"
 )
 
 func TestRegister(t *testing.T) {

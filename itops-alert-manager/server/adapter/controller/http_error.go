@@ -6,8 +6,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"net/http"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/rest"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/domain"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 )
 
 var (

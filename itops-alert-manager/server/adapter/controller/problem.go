@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/rest"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/common"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/common/log"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/domain/dependency"
@@ -11,6 +10,7 @@ import (
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/domain/vo"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 )
 
 type ProblemController interface {

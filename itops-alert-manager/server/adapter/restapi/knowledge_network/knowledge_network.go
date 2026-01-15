@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/DE_go-lib/rest"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/common/log"
 	"devops.aishu.cn/AISHUDevOps/AnyRobot/_git/itops-alert-manager/server/domain/dependency"
+	"github.com/kweaver-ai/kweaver-go-lib/rest"
 )
 
 type knowledgeNetworkClient struct {
