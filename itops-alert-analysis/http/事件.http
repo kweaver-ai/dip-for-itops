@@ -1,0 +1,28 @@
+### 发送事件
+POST http://{{hostip}}/v1/events
+Content-Type: application/json
+
+{
+  "timestamp": "2025-10-19 10:10:10",
+  "description": "错误描述",
+  "event_id": "123",
+  "event_name": "事件名称",
+  "occur_time": "2025-10-19 10:10:10",
+  "recovery_time": "2025-10-19 10:10:10",
+  "event_severity": "1",
+  "event_status": "1",
+  "hostname": "未知主机",
+  "ip": "127.0.0.1",
+  "item_key": "cpu报警",
+  "item_name": "cpu报警",
+  "item_value": "1"
+}
+
+### 查询事件 ids
+GET http://{{hostip}}/v1/events/info/7233404430405632
+Accept: application/json
+
+### 查询事件 provider_ids
+GET http://{{hostip}}/v1/events?provider_ids=123
+Accept: application/json
+

@@ -1,0 +1,175 @@
+components:
+  schemas:
+    detail:
+      type: object
+      properties:
+        id:
+          type: string
+          description: agent id
+        key:
+          type: string
+          description: agent 标识
+        is_built_in:
+          type: integer
+          enum:
+          - 0
+          - 1
+          description: |
+            是否内置智能体
+            - 0: 否
+            - 1: 是
+        name:
+          type: string
+          description: 智能体名字
+        profile:
+          type: string
+          description: 智能体简介
+        avatar_type:
+          type: integer
+          description: |
+            头像类型
+            - 1: 内置头像
+            - 2: 用户上传头像
+            - 3: AI生成头像
+        avatar:
+          type: string
+          description: |
+            头像信息
+            - 当头像类型为1时，为内置头像标识(如1-10等)
+            - 当头像类型为2时，为头像存储信息
+            - 当头像类型为3时，为头像存储信息
+        product_key:
+          type: string
+          description: 所属产品 key
+        product_name:
+          type: string
+          description: 所属产品名称
+        is_system_agent:
+          type: integer
+          enum:
+          - 0
+          - 1
+          description: |
+            是否是系统智能体
+            - 0: 否
+            - 1: 是
+        config:
+          $ref: ./agent-factory.schemas.yaml#/components/schemas/Config
+          title: agent配置
+        status:
+          type: string
+          enum:
+          - unpublished
+          - published
+          description: |
+            状态：
+            - unpublished: 未发布
+            - published: 已发布
+    Config:
+      type: object
+      properties:
+        opening_remark_config:
+          type: object
+          description: 开场白配置
+          properties:
+            type:
+              type: string
+              description: 开场白类型（固定/动态）
+              enum:
+              - fixed
+              - dynamic
+              example: fixed
+            fixed_opening_remark:
+              type: string
+              description: 固定类型的开场白文案
+          required:
+          - type
+        preset_questions:
+          type: array
+          description: 预置问题列表
+          items:
+            type: object
+            required:
+            - question
+            properties:
+              question:
+                type: string
+                description: 预置问题内容
+      description: data agent配置
+    Error:
+      required:
+      - error_code
+      - description
+      - solution
+      - error_link
+      - error_details
+      type: object
+      description: 错误信息（统一格式）
+      properties:
+        error_code:
+          type: string
+          description: 业务错误码
+        description:
+          type: string
+          description: 错误描述
+        solution:
+          type: string
+          description: 解决方法
+        error_link:
+          type: string
+          description: 错误链接
+        error_details:
+          description: |
+            - 错误详情（比如当某些数据不存在时，这里可以包含不存在的id）
+            - 任意类型
+          enum:
+          - object
+          - 'null'
+          - array
+          - string
+          - number
+          - boolean
+  responses:
+    '400':
+      description: 错误的请求
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '401':
+      description: 认证失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '403':
+      description: 请求被拒绝
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '404':
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '409':
+      description: 资源冲突
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '500':
+      description: 内部错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '502':
+      description: 网关错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes: {}

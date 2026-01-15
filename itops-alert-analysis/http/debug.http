@@ -1,0 +1,3 @@
+### 查看问题树
+GET http://{{hostip}}/v1/debug/problem/7234067708735488/tree
+Accept: application/json

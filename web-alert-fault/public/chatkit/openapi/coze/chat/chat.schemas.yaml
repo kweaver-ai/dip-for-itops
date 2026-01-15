@@ -1,0 +1,311 @@
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - bot_id
+        - user_id
+      properties:
+        bot_id:
+          type: string
+          description: 智能体 ID，路径页面可复制。
+        user_id:
+          type: string
+          description: 用户 ID，用于关联上下文。
+        additional_messages:
+          type: array
+          description: 额外对话消息列表，按顺序作为上下文发送。
+          items:
+            $ref: '#/components/schemas/EnterMessage'
+        stream:
+          type: boolean
+          description: 是否开启流式返回，默认 true。
+          default: true
+        conversation_id:
+          type: string
+          description: 继续历史对话时填写的会话 ID。
+        custom_variables:
+          type: object
+          additionalProperties:
+            type: string
+          description: 自定义变量（键值对），用于填充 Prompt 模板。
+        auto_save_history:
+          type: boolean
+          description: 是否自动保存对话上下文，默认 true。
+          default: true
+        meta_data:
+          type: object
+          additionalProperties: true
+          description: 自定义元数据，服务端透传。
+        extra_params:
+          type: object
+          additionalProperties:
+            type: string
+          description: 预留扩展参数，例如用户位置。
+        shortcut_command:
+          $ref: '#/components/schemas/ShortcutCommandDetail'
+        parameters:
+          type: object
+          additionalProperties: true
+          description: 模型运行时参数，传递到工具或 Agent。
+        enable_card:
+          type: boolean
+          description: 是否开启卡片模式渲染，默认 false。
+          default: false
+        publish_status:
+          type: string
+          description: 选择使用发布版或草稿版配置。
+          enum:
+            - published_online
+            - unpublished_draft
+          default: published_online
+        bot_version:
+          type: string
+          description: 指定的智能体版本号。
+    EnterMessage:
+      type: object
+      required:
+        - role
+        - content
+        - content_type
+      properties:
+        role:
+          type: string
+          description: 消息角色。
+          enum:
+            - user
+            - assistant
+        type:
+          type: string
+          description: 消息类型，默认 question。
+          enum:
+            - question
+            - answer
+            - function_call
+            - tool_response
+            - follow_up
+            - verbose
+        content:
+          type: string
+          description: 消息内容；当 content_type=object_string 时需为 JSON 字符串。
+        content_type:
+          type: string
+          description: 内容类型。
+          enum:
+            - text
+            - object_string
+            - card
+        meta_data:
+          type: object
+          additionalProperties: true
+          description: 消息元数据。
+    ShortcutCommandDetail:
+      type: object
+      properties:
+        command_id:
+          type: string
+          description: 快捷指令 ID。
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          description: 快捷指令参数，键值对形式。
+    ChatResponse:
+      type: object
+      description: 非流式响应体。
+      properties:
+        code:
+          type: integer
+          format: int64
+          description: 业务状态码，0 表示成功。
+        msg:
+          type: string
+          description: 错误信息。
+        data:
+          $ref: '#/components/schemas/ChatObject'
+    StreamEvent:
+      type: object
+      description: 流式事件。
+      properties:
+        event:
+          type: string
+          description: 事件名称。
+          enum:
+            - conversation.chat.created
+            - conversation.chat.in_progress
+            - conversation.message.delta
+            - conversation.message.completed
+            - conversation.chat.completed
+            - conversation.chat.failed
+            - conversation.chat.requires_action
+            - done
+            - error
+        data:
+          description: 事件数据，chat/answer 时为 ChatObject，message 时为 MessageObject。
+          oneOf:
+            - $ref: '#/components/schemas/ChatObject'
+            - $ref: '#/components/schemas/MessageObject'
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+        msg:
+          type: string
+    ChatObject:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 对话唯一标识。
+        conversation_id:
+          type: string
+          description: 会话 ID。
+        bot_id:
+          type: string
+          description: 智能体 ID。
+        created_at:
+          type: integer
+          format: int64
+          description: 创建时间戳，单位毫秒。
+        completed_at:
+          type: integer
+          format: int64
+          description: 完成时间戳，单位毫秒。
+        failed_at:
+          type: integer
+          format: int64
+          description: 失败时间戳，单位毫秒。
+        meta_data:
+          type: object
+          additionalProperties: true
+          description: 对话元数据。
+        last_error:
+          $ref: '#/components/schemas/ChatError'
+        status:
+          type: string
+          description: 对话状态。
+          enum:
+            - created
+            - in_progress
+            - completed
+            - failed
+            - requires_action
+            - canceled
+        required_action:
+          $ref: '#/components/schemas/RequiredAction'
+        submit_tool_outputs:
+          type: boolean
+          description: 是否需要提交工具输出。
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCall'
+        usage:
+          $ref: '#/components/schemas/Usage'
+    ChatError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+        msg:
+          type: string
+        suggestion:
+          type: string
+    RequiredAction:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 动作类型，例如 submit_tool_outputs。
+        submit_tool_outputs:
+          type: boolean
+          description: 是否需要提交工具输出。
+    ToolCall:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 工具调用 ID。
+        type:
+          type: string
+          description: 调用类型，function 或 tool。
+        function:
+          $ref: '#/components/schemas/CalledFunction'
+        arguments:
+          type: string
+          description: JSON 字符串参数。
+    CalledFunction:
+      type: object
+      properties:
+        name:
+          type: string
+        arguments:
+          type: string
+          description: JSON 形式的入参。
+    Usage:
+      type: object
+      properties:
+        input_count:
+          type: integer
+          format: int64
+          description: 输入消耗 Token 数。
+        output_count:
+          type: integer
+          format: int64
+          description: 输出消耗 Token 数。
+        token_count:
+          type: integer
+          format: int64
+          description: Token 总消耗。
+    MessageObject:
+      type: object
+      properties:
+        id:
+          type: string
+        conversation_id:
+          type: string
+        bot_id:
+          type: string
+        chat_id:
+          type: string
+        meta_data:
+          type: object
+          additionalProperties: true
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+        content:
+          type: string
+        content_type:
+          type: string
+          enum:
+            - text
+            - object_string
+            - card
+            - audio
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+        type:
+          type: string
+          enum:
+            - question
+            - answer
+            - function_call
+            - tool_response
+            - follow_up
+            - verbose
+        section_id:
+          type: string
+          description: 上下文片段标识。
+        reasoning_content:
+          type: string
+          description: 思维链内容。

@@ -1,0 +1,71 @@
+[AutoItOpsAlertManager.InternalError.InternalError]
+Description= "服务器内部错误"
+Solution= "请查看日志中的具体错误内容"
+ErrorLink= "暂无"
+
+[AutoItOpsAlertManager.NotFound.Data]
+Description= "数据未找到"
+Solution= "暂无"
+ErrorLink= "暂无"
+
+[AutoItOpsAlertManager.BadRequest.InvalidParameter]
+Description= "参数无效"
+Solution= "请检查参数是否正确"
+ErrorLink= "暂无"
+
+[AutoItOpsAlertManager.InvalidParameter.SortInvalidParameter]
+Description = "排序字段参数无效，排序字段不在支持范围中"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.InvalidParameter.LimitInvalidParameter]
+Description = "每页数量参数无效，每页数量必须大于等于 1 小于等于 100, 或等于-1"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.InvalidParameter.OffsetInvalidParameter]
+Description = "偏移量参数无效，偏移量必须大于等于 0"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.InvalidParameter.DirectionInvalidParameter]
+Description = "排序字段参数无效， 应在列表 {desc, asc} 中"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.InternalError.GenerateIDFailed]
+Description = "生成分布式id失败"
+Solution = "请重试该操作，若再次出现该错误请提交工单或联系技术支持工程师"
+ErrorLink ="暂无"
+
+[AutoItOpsAlertManager.InternalError.DataConvertFailed]
+Description = "服务器内部错误,数据转换失败"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.InternalError.ExecuteSqlError]
+Description = "服务器内部错误"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.InternalError.ClientRequestError]
+Description = "访问其他客户端错误"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.BadRequest.NameExisted]
+Description = "名称已经存在"
+Solution = "请检查参数是否正确。"
+ErrorLink = "暂无"
+
+[AutoItOpsAlertManager.BadRequest.Unauthorized]
+Description = "认证失败"
+Solution = "暂无"
+ErrorLink = "暂无"
+
+
+
+
+
+
+

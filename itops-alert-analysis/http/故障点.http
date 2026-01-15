@@ -1,0 +1,4 @@
+### 查询故障点
+GET http://127.0.0.1/v1/fault-points/info/7233301404241920
+Accept: application/json
+

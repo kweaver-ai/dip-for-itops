@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>发生</title>
+    <g id="告警与故障分析" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="问题-故障点" transform="translate(-371, -221)">
+            <g id="发生" transform="translate(371, 221)">
+                <circle id="椭圆形-2" fill="#FFFFFF" cx="8" cy="8" r="8"></circle>
+                <g id="1、通用/2、icon/7、仪表盘/异常备份" transform="translate(2, 2)">
+                    <rect id="矩形" fill="#000000" fill-rule="nonzero" opacity="0" x="0" y="0" width="12" height="12"></rect>
+                    <g id="03" stroke-width="1" fill-rule="evenodd" transform="translate(0.75, 0.75)" fill="#FF4D4F">
+                        <path d="M5.25,0.75 C7.734,0.75 9.75,2.766 9.75,5.25 C9.75,7.73400001 7.734,9.75 5.25,9.75 C2.76599999,9.75 0.749999999,7.734 0.749999999,5.25 C0.749999999,2.76599999 2.766,0.75 5.25,0.75 M5.24999999,0 C2.3532,0 0,2.3532 0,5.25 C0,8.1468 2.3532,10.5 5.24999999,10.5 C8.14679999,10.5 10.5,8.1468 10.5,5.25 C10.5,2.3532 8.1468,0 5.24999999,0 L5.24999999,0 Z M8.0436,2.9814 L7.50959999,2.4474 L5.24999999,4.725 L2.9802,2.45639999 L2.4462,2.9904 L4.725,5.25 L2.4558,7.5186 L2.99039999,8.0526 L5.24999999,5.78460001 L7.51859999,8.0526 L8.0526,7.5186 L5.7846,5.25 L8.0436,2.9814 Z" id="形状" fill-rule="nonzero"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

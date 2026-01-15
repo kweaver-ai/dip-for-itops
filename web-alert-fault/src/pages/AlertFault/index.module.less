@@ -1,0 +1,163 @@
+@import '../FaultAnalysis/index.module.less';
+
+.problemContainer {
+  padding: 0 24px 0;
+  background-color: #ffffff;
+  height: 100%;
+  overflow-y: auto;
+
+  .cardRow {
+    margin-bottom: 20px;
+  }
+
+  .chartRow {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .statCard {
+    .statCardContent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .statTitle {
+        color: #8c8c8c;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .statValue {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .statIcon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+      }
+    }
+  }
+
+  .chartCard {
+    .chartTitle {
+      font-size: 16px;
+      padding: 8px 16px;
+    }
+
+    .chartContainer {
+      width: 100%;
+      height: 232px;
+    }
+  }
+
+  .tableCard {
+    .tableTitle {
+      display: flex;
+      justify-content: flex-end;
+      margin: 12px 0;
+    }
+
+    .tableWrapper {
+      height: 100%;
+      overflow: hidden;
+
+      :global {
+        .ar-ant-spin-nested-loading,
+        .ar-ant-spin-container,
+        .ar-ant-table-container {
+          height: 100%;
+        }
+
+        .ar-ant-table {
+          height: calc(100% - 64px);
+        }
+      }
+    }
+
+    .levelTag {
+      display: flex;
+      align-items: center;
+
+      .levelIcon {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 4px;
+      }
+    }
+
+    .statusTag {
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .textEllipsis {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .rootCauseObject {
+      color: #007aff;
+      background: rgba(0, 122, 255, 0.15);
+      border: 1px solid rgba(0, 122, 255, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 2px 6px;
+    }
+
+    .operationButton {
+      margin-right: 16px;
+      color: #1890ff;
+    }
+
+    .disableButton {
+      color: rgba(0, 0, 0, 0.15);
+      cursor: not-allowed;
+    }
+  }
+
+  .chartToolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .toolbarItem {
+      margin-left: 16px;
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+
+      .toolbarSelect {
+        margin-left: 8px;
+        padding: 4px 8px;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.tabs {
+  background-color: #f2f2f2;
+  height: 100%;
+
+  :global {
+    .ar-ant-tabs-nav {
+      margin-bottom: 0 !important;
+    }
+    .ar-ant-tabs-content,
+    .ar-ant-tabs-tabpane {
+      height: 100%;
+    }
+  }
+}

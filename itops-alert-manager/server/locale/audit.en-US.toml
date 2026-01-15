@@ -1,0 +1,45 @@
+# audit log-loglevel
+ID_AUDIT_LEVEL_INFO = "Info"
+
+ID_AUDIT_LEVEL_WARNING = "Alert"
+
+
+# audit log-logtype
+ID_AUDIT_ACCESS_LOG = "Access Log"
+
+ID_AUDIT_MANAGEMENT_LOG = "Management Log"
+
+ID_AUDIT_ACTION_LOG = "Action Log"
+
+# audit log-action
+ID_AUDIT_ACTION_CREATE = "Create"
+
+ID_AUDIT_ACTION_DELETE = "Delete"
+
+ID_AUDIT_ACTION_UPDATE = "Modify"
+
+ID_AUDIT_ACTION_PAUSE = "Pause"
+
+ID_AUDIT_ACTION_START = "Start"
+
+# audit log-result
+ID_AUDIT_SUCCESS = "Success"
+
+ID_AUDIT_FAILED = "Failure"
+
+# audit log-object type
+ID_Automatic_Report_Center_Management = "Report Server"
+ID_Automatic_Report_Center_Management_Template_Management = "Template Management for Report Server"
+ID_Automatic_Report_Center_Management_Job_Management = "Job Management for Report Server"
+ID_Automatic_Report_Center_Management_Report_Management = "Report Management for Report Server"
+
+
+ID_AUDIT_KAFKA_TOPIC = "Kafka Topic"
+
+ID_AUDIT_INDICE = "Index"
+
+# audit log-public
+ID_AUDIT_UNKNOWN_USER = "Unknown User"
+
+ID_AUDIT_UNKNOWN_IP = "Unknown IP"
+

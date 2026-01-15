@@ -1,0 +1,67 @@
+api:
+  port: 13047
+
+app_config_service:
+  enabled: true
+  endpoint: http://127.0.0.1:3000/app_config.json
+  refresh_interval: 30s
+
+
+depServices:
+    class-443:
+        ingressClass: class-443
+    mq:
+        auth:
+            mechanism: PLAIN
+            password: eisoo.com123
+            username: anyrobot
+        mqHost: 192.168.201.15
+        mqPort: 31000
+        mqType: kafka
+        protocol: sasl_plaintext
+        tenant: default
+    opensearch:
+        host: 192.168.201.15
+        port: 30000
+        protocol: http
+        user: admin
+        password: eisoo.com123
+
+    redis:
+        connectInfo:
+            masterGroupName: mymaster
+            password: eisoo.com123
+            sentinelHost: 10.4.104.152
+            sentinelPassword:
+            sentinelPort: 6379
+            sentinelUsername: root
+            username: root
+        connectType: sentinel
+        database: 0
+
+kafka:
+    problem_events:
+        consumer_group: itops-alert-analysis-rca-consumer
+        topic: itops_alert_problem_event
+    raw_events:
+        consumer_group: itops-alert-analysis-consumer
+        topic: itops_alert_raw_event
+log:
+    compress: false
+    development: false
+    filepath: /var/log/itops-alert-analysis/itops-alert-analysis.log
+    level: info
+    max_age: 10
+    max_backups: 100
+    max_size: 10
+platform:
+    agents:
+        causal_analysis:
+            agent_key: 01KCNY5BJRAM7ZV6APXER6TRT6
+            app_id: 01KCNY5BJRAM7ZV6APXG60JPZF
+        problem_summary:
+            agent_key: 01KCZ9WEAAATVXAD89T8QGEX3F
+            app_id: 01KCZ9WEAAATVXAD89TBKN6CER
+    base_url: https://nginx-ingress-class-443.dip:443
+    insecure_skip_verify: true
+    timeout: 120s

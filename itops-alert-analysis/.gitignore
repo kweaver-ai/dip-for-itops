@@ -1,0 +1,8 @@
+.idea/
+.vscode/
+.toolkit/.venv/
+server/bin/
+.claude
+server/main
+server/main.exe
+agents.md

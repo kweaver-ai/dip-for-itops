@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.dipModule }}-{{ .Values.cluster }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{ .Values.dipModule }}-{{ .Values.cluster }}-service: "true"
+    cluster: {{ .Values.cluster }}
+    dip-module: {{ .Values.dipModule }}
+spec:
+{{- if .Values.service.enableDualStack }}
+  ipFamilies:
+  - IPv6
+  - IPv4
+  ipFamilyPolicy: PreferDualStack
+{{- end }}
+  selector:
+    {{ .Values.dipModule }}-{{ .Values.cluster }}-service: "true"
+  type: {{ .Values.service.reportCenter.type }}
+  ports:
+    - name: {{ .Values.dipModule }}
+      port: {{ .Values.service.reportCenter.port }}
+      protocol: TCP
+      targetPort: alert-manager
+      {{- if eq .Values.service.reportCenter.type "NodePort" }}
+      nodePort: {{ .Values.service.reportCenter.nodePort }}
+      {{- end }}

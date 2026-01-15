@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: Coze API
+  version: "1.0.0"
+servers:
+  - url: https://api.coze.cn
+paths:
+  /v1/bots/{bot_id}:
+    $ref: ./bots/bots.paths.yaml#/paths/~1v1~1bots~1{bot_id}
+  /v3/chat:
+    $ref: ./chat/chat.paths.yaml#/paths/~1v3~1chat

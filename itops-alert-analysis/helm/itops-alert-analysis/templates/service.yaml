@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.moduleName }}-{{ .Values.cluster }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{ .Values.moduleName }}-{{ .Values.cluster }}-service: "true"
+    cluster: {{ .Values.cluster }}
+    anyrobot-module: {{ .Values.moduleName }}
+spec:
+{{- if .Values.service.enableDualStack }}
+  ipFamilies:
+  - IPv6
+  - IPv4
+  ipFamilyPolicy: PreferDualStack
+{{- end }}
+  selector:
+    {{ .Values.moduleName }}-{{ .Values.cluster }}-service: "true"
+  type: {{ .Values.service.alertAnalysis.type }}
+  ports:
+    - name: {{ .Values.moduleName }}
+      port: {{ .Values.service.alertAnalysis.port }}
+      protocol: TCP
+      targetPort: {{ .Values.service.alertAnalysis.port }}
+      {{- if eq .Values.service.alertAnalysis.type "NodePort" }}
+      nodePort: {{ .Values.service.alertAnalysis.nodePort }}
+      {{- end }}

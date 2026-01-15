@@ -1,0 +1,451 @@
+.ar-dashboard-time-filter-en {
+  width: 330px !important;
+}
+
+.ar-dashboard-time-filter {
+  width: 291px;
+  background-color: transparent !important;
+  padding-top: 16px;
+
+  // 快速选择样式
+  .ar-ant-col-8 {
+    line-height: 1.8em;
+
+    ul {
+      margin: 0;
+      padding-left: 16px;
+      list-style-type: none;
+
+      li {
+        span {
+          line-height: 20px;
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.65);
+
+          &:hover {
+            cursor: pointer;
+          }
+
+          &.tag-active {
+            background-color: #1890ff;
+            color: #fff;
+          }
+
+          &:not(.tag-active):hover {
+            background-color: #f1f1f1;
+          }
+
+          display: inline-block;
+          vertical-align: middle;
+          height: 24px;
+          line-height: 24px;
+          margin: 2px 0;
+          min-width: 65px;
+          text-align: center;
+          border-radius: 2px;
+        }
+      }
+    }
+
+    &.section-wrap {
+      margin-bottom: 12px;
+    }
+
+    &.section1,
+    &.section2 {
+      border-left: 1px solid #e8e8e8;
+    }
+  }
+}
+
+.ar-dashboard-time-picker-quick {
+  border-radius: 4px !important;
+  background: transparent !important;
+  border-color: #d9d9d9 !important;
+
+  &.ar-allow-clear {
+    padding-right: 5px !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    min-width: 130px;
+    text-align: left;
+    width: 100%;
+
+    .ar-panel-text {
+      max-width: calc(100% - 34px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+  }
+
+  &:hover {
+    .clear-icon {
+      visibility: visible;
+    }
+  }
+
+  .ar-ant-select-selector {
+    border-radius: 4px !important;
+    height: 30px !important;
+    background-color: transparent !important;
+  }
+
+  height: 30px !important;
+  line-height: 17px !important;
+
+  .anticon-calendar {
+    color: #828282 !important;
+  }
+
+  .ar-ant-select-selection-item {
+    line-height: 28px !important;
+  }
+
+  span {
+    color: #727272 !important;
+  }
+}
+
+.ar-dashboard-time-filter-btn {
+  text-align: left !important;
+  vertical-align: middle;
+
+  .icon-container {
+    float: right;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-right: -5px;
+    position: relative;
+
+    .ar-dashboard-time-picker-suffix {
+      color: #bfbfbf;
+      position: absolute;
+      right: 0;
+    }
+
+    .icon-btn {
+      margin-right: 2px;
+      margin-left: 5px;
+    }
+
+    .clear-icon {
+      color: #bfbfbf;
+      cursor: pointer;
+      visibility: hidden;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+      z-index: 99;
+    }
+
+    .clear-icon:hover {
+      color: #8c8c8c;
+    }
+  }
+
+  &:hover {
+    .clear-icon {
+      visibility: visible;
+    }
+  }
+}
+
+.ar-ant-picker-cell {
+  vertical-align: middle;
+}
+
+.ar-dashboard-placeholder {
+  color: #bfbfbf !important;
+}
+
+.ar-dashboard-time-space {
+  line-height: 1;
+}
+
+.ar-dashboard-time-picker-edit {
+  height: 32.84px;
+}
+
+@media only screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .ar-ant-dropdown,
+  .ar-ant-select-dropdown,
+  .ar-ant-picker-dropdown {
+    animation-duration: 0s !important;
+  }
+}
+
+body {
+  font-size: 12px !important;
+}
+
+@ant-prefix: ~'ar-ant';
+
+.time-filter {
+  width: 458px;
+  box-shadow: 0 6px 16px fade(#000, 8%);
+  background-color: #fff;
+
+  .ar-ant-picker {
+    width: 348px;
+  }
+
+  .ar-ant-select {
+    width: 63px;
+  }
+
+  .@{ant-prefix}-tabs {
+    .@{ant-prefix}-tabs-nav {
+      background-color: #fafafa;
+      border: none;
+      margin-bottom: 8px !important;
+
+      .@{ant-prefix}-tabs-tab {
+        background-color: #fafafa;
+        border: none;
+
+        &.@{ant-prefix}-tabs-tab-active {
+          background-color: #fff;
+          border: none;
+          border-top: 2px solid #1890ff;
+        }
+      }
+    }
+
+    .@{ant-prefix}-tabs-content {
+      background-color: #fff;
+      border: none;
+      height: auto;
+
+      // 快速选择样式
+      .@{ant-prefix}-col-8 {
+        line-height: 1.8em;
+
+        ul {
+          margin: 0;
+          padding-left: 16px;
+          list-style-type: none;
+
+          li {
+            span {
+              line-height: 20px;
+              font-size: 12px;
+              color: rgba(0, 0, 0, 0.65);
+
+              text-align: left;
+              width: auto;
+
+              &:hover {
+                cursor: pointer;
+              }
+
+              &.tag-active {
+                background-color: #1890ff;
+                color: #fff;
+              }
+
+              &:not(.tag-active):hover {
+                background-color: #f1f1f1;
+              }
+
+              display: inline-block;
+              vertical-align: middle;
+              height: 24px;
+              line-height: 22px;
+              margin: 2px 0;
+              padding: 1px 8px !important;
+              border-radius: 2px;
+            }
+          }
+        }
+
+        &.section-wrap {
+          padding-bottom: 16px;
+        }
+
+        &.section1,
+        &.section2 {
+          border-left: 1px solid #e8e8e8;
+        }
+      }
+
+      // 时间段选择样式
+      .picker-range {
+        .tips {
+          margin-bottom: 28px;
+          padding: 16px 8px;
+          background-color: #fafafa;
+          color: #faad14;
+
+          .anticon {
+            margin-right: 8px;
+            font-size: 15px;
+            position: relative;
+            top: 1px;
+          }
+        }
+
+        .help-info-tips-model {
+          display: flex;
+          margin-top: 4px;
+          line-height: 20px;
+          font-size: 12px;
+          color: #000;
+
+          .help-info-tips {
+            width: 220px;
+
+            .Millisecond-postion {
+              margin-left: 15px;
+            }
+          }
+        }
+
+        .check-button {
+          float: right;
+          margin: 16px 0;
+        }
+
+        .@{ant-prefix}-picker {
+          width: 100% !important;
+
+          .@{ant-prefix}-picker-input {
+            padding-left: 26px;
+          }
+
+          .@{ant-prefix}-picker-clear {
+            right: 8px;
+          }
+        }
+
+        .time-sel {
+          .date-sel {
+            width: 100%;
+            padding: 2px 16px 16px;
+          }
+
+          // 结束日期
+          .end-date {
+            margin-left: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.drop-tabs {
+  .@{ant-prefix}-picker-content td {
+    vertical-align: middle;
+  }
+
+  .ar-ant-tabs-tab {
+    border-radius: 0 !important;
+  }
+
+  .time-filter-btn {
+    padding-right: 5px !important;
+  }
+
+  .time-filter-btn:hover .clear-icon {
+    visibility: visible;
+  }
+
+  .icon-container {
+    float: right;
+    display: flex;
+    align-items: center;
+    height: 100%;
+
+    .icon-btn {
+      margin-right: 2px;
+      margin-left: 5px;
+    }
+
+    .clear-icon {
+      color: #bfbfbf;
+      cursor: pointer;
+      visibility: hidden;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .clear-icon:hover {
+      color: #8c8c8c;
+    }
+  }
+
+  .span-icon {
+    float: right;
+    margin-top: 4px;
+    margin-left: 6px;
+
+    svg {
+      cursor: default;
+    }
+  }
+
+  .item-btn {
+    width: 100%;
+    text-align: left;
+  }
+
+  .span-btn {
+    display: flex;
+    text-align: center;
+    line-height: 20px;
+    height: 20px;
+    cursor: default;
+  }
+
+  .card-btn {
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.ar-timefilter-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  height: 100%;
+}
+
+.ar-now-time {
+  cursor: pointer;
+}
+
+.ar-time-range-wrapper {
+  padding: 8px 0 16px 24px;
+}
+
+.ar-now-time-wrapper {
+  padding-bottom: 8px;
+}
+
+.ar-dashboard-time-picker-popup {
+  font-size: 12px !important;
+}
+
+.ar-icon-container {
+  .clear-icon {
+    color: #bfbfbf !important;
+    cursor: pointer;
+    visibility: hidden;
+    transition: all 0.3s;
+    z-index: 99;
+    margin-left: 2px;
+    position: relative;
+    top: 1px;
+  }
+
+  .clear-icon:hover {
+    color: #8c8c8c !important;
+  }
+}

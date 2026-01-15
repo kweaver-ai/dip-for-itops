@@ -1,0 +1,27 @@
+
+### 查询问题
+GET http://{{hostip}}/v1/problems/info/7234067708735488
+Accept: application/json
+
+### 关闭问题
+POST http://{{hostip}}/v1/problems/7234067708735488/close
+Content-Type: application/json
+
+{
+  "close_type":"2",
+  "notes":"12344",
+  "closed_by":"liu"
+}
+
+### 设置根应
+POST http://{{hostip}}/v1/problems/123/root-cause
+Content-Type: application/json
+
+{
+  "root_cause_object_id": "1235"
+}
+
+
+
+
+

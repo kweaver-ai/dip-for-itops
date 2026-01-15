@@ -1,0 +1,28 @@
+FROM acr.aishu.cn/public/node:22.18.0 AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+COPY ./package.json ./pnpm-lock.yaml /anyrobot/web/
+
+RUN cd /anyrobot/web \
+&& npm config set registry http://repository.aishu.cn:8081/repository/npm-all/ \
+&& npm i -g pnpm@9.15.2 \
+&& pnpm config set registry http://repository.aishu.cn:8081/repository/npm-all/ \
+&& pnpm install --frozen-lockfile
+
+FROM base AS builder
+
+COPY . /anyrobot/web/
+
+RUN set -x \
+    && cd /anyrobot/web/ \
+    && pnpm run build
+
+FROM acr.aishu.cn/public/nginx:1.28.0-alpine
+
+COPY --from=builder /anyrobot/web/build /anyrobot/web/nginx.conf /anyrobot/web/
+
+# 启动静态文件
+CMD ["nginx", "-c", "/anyrobot/web/nginx.conf"]
+
+EXPOSE 5612

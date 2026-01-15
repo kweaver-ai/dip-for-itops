@@ -1,0 +1,27 @@
+# 业务配置（由远程配置服务动态更新）
+# 此文件会被远程配置覆盖，手动修改可能会丢失
+
+# 认证凭据
+credentials:
+  authorization: "Bearer your-auth-token"  # 平台认证令牌
+
+# 知识网络配置
+knowledge_network:
+  knowledge_id: "your-knowledge-id"        # 知识网络 ID
+
+# 数据摄取配置
+ingest:
+  source:
+    type: "zabbix_webhook"                 # 数据源类型
+
+# 故障点失效配置
+fault_point:
+  expiration:
+    enabled: true                          # 是否启用失效检查
+    expiration_time: 1h                    # 失效时间（默认 1 小时）
+
+# 问题失效配置
+problem:
+  expiration:
+    enabled: true                          # 是否启用失效检查
+    expiration_time: 1h                    # 失效时间（默认 1 小时）

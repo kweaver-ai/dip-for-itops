@@ -1,0 +1,183 @@
+zabbix_export:
+  version: '7.0'
+  media_types:
+    - name: AnyRobot告警收敛
+      type: WEBHOOK
+      parameters:
+        - name: bom_alert_url
+          value: 'http://192.168.201.15/api/itops-alert-analysis/v1/events'
+        - name: description
+          value: '{TRIGGER.NAME} - {TRIGGER.EXPRESSION}'
+        - name: event_id
+          value: '{EVENT.ID}'
+        - name: event_name
+          value: '{EVENT.NAME}'
+        - name: event_recovery_id
+          value: '{EVENT.RECOVERY.ID}'
+        - name: event_recovery_time
+          value: '{EVENT.RECOVERY.DATE} {EVENT.RECOVERY.TIME}'
+        - name: event_recovery_value
+          value: '{EVENT.RECOVERY.VALUE}'
+        - name: event_severity
+          value: '{EVENT.SEVERITY}'
+        - name: event_status
+          value: '{EVENT.STATUS}'
+        - name: event_time
+          value: '{EVENT.DATE} {EVENT.TIME}'
+        - name: host
+          value: '{HOST.HOST}'
+        - name: ip
+          value: '{HOST.IP}'
+        - name: item_key
+          value: '{ITEM.KEY}'
+        - name: item_name
+          value: '{ITEM.NAME}'
+        - name: item_value
+          value: '{ITEM.VALUE}'
+        - name: tags_json
+          value: '{EVENT.TAGSJSON}'
+      script: |
+        try {
+            var result = {};
+            var params = JSON.parse(value);
+            var req = new HttpRequest();
+            var url = params.bom_alert_url;
+            req.addHeader('Content-Type: application/json');  // 正确写法
+        
+            // 2. 事件状态处理（补充默认值，避免undefined）
+            var event_id = params.event_id || 'unknown';  // Zabbix 原始问题ID（告警和恢复时保持不变）
+            var provider_event_id = event_id;  // 用于关联原始告警事件的ID
+            var event_status = '发生';
+            var occur_time = params.event_time ? params.event_time.replace(/\./g, '-') : new Date().toISOString();
+            var timestamp = occur_time;
+            var recovery_time = null;
+            var recovery_id = null;
+        
+        
+            // 3. 事件状态判断（兼容可能的小写状态值，如"resolved"）
+            if (params.event_status && params.event_status.toUpperCase() === "RESOLVED") {
+                recovery_id = event_id
+                // 恢复事件：使用恢复事件的新ID，但保留原问题ID用于关联
+                if (params.event_recovery_id) {
+                    event_id = params.event_recovery_id;  // 恢复事件自己的ID
+                }
+                // provider_event_id 保持为原问题ID，用于关联告警事件
+                event_status = '恢复';
+                recovery_time = params.event_recovery_time ? params.event_recovery_time.replace(/\./g, '-') : new Date().toISOString();
+                timestamp = recovery_time;
+        
+            }
+        
+            // 3.5. 解析 tags_json 并构建 entity_object_name
+            var entity_object_name = params.host || '未知主机';
+            var tags = {};
+        
+            try {
+                if (params.tags_json) {
+                    var tagsArray = JSON.parse(params.tags_json);
+                    for (var i = 0; i < tagsArray.length; i++) {
+                        tags[tagsArray[i].tag] = tagsArray[i].value;
+                    }
+                }
+            } catch (e) {
+                Zabbix.Log(3, "解析 tags_json 失败: " + e);
+            }
+        
+            // 根据 object_type 构建 entity_object_name
+            var object_type = tags.object_type || '';
+        
+            // 定义 object_type 到名称字段的映射关系
+            var nameFieldMap = {
+                'pod': 'pod',
+                'host': 'host_name',
+                'database': 'database_name',
+                'middleware': 'middleware_name',
+                'service': 'service_name',
+                'network_device': 'network_device_name',
+                'physical_machine': 'physical_machine_name'
+            };
+        
+            // 如果 object_type 存在且有对应的映射，构建统一格式的 entity_object_name
+            if (object_type && nameFieldMap[object_type]) {
+                // 获取 k8s_cluster（不存在则为空字符串）
+                var k8s_cluster = tags.k8s_cluster || '';
+        
+                // 获取 namespace（不存在则为空字符串）
+                var namespace = tags.namespace || '';
+        
+                // 根据 object_type 获取对应的名称字段值
+                var nameField = nameFieldMap[object_type];
+                var name = tags[nameField] || '';
+        
+                // 兜底处理：如果是 host 类型且 host_name 为空，使用 host 字段
+                if (object_type === 'host' && !name && params.host) {
+                    name = params.host;
+                }
+        
+                // 拼接成统一格式: k8s_cluster:xxx,namespace:xxx,name:xxx
+                entity_object_name = 'k8s_cluster:' + k8s_cluster + ',namespace:' + namespace + ',name:' + name;
+            }
+            // 否则保持默认值（使用 hostname）
+        
+            // 4. 构造请求体（补充必填字段默认值，避免JSON结构缺失）
+            var fields = {
+                'timestamp': timestamp,
+                'description': params.description || '无描述信息',
+                'event_id': event_id,
+                'recovery_id': recovery_id,
+                'event_name': params.event_name || '未知事件',
+                'occur_time': occur_time,
+                'recovery_time': recovery_time,
+                'event_severity': params.event_severity || 0,  // 默认为"未分类"
+                'event_status': event_status,
+                'entity_object_name': entity_object_name,
+                'ip': params.ip || '未知IP',
+                'item_key': params.item_key || '未知指标',
+                'item_name': params.item_name || '未知指标名',
+                'item_value': params.item_value || '无值'
+            };
+        
+            // 5. 发送POST请求（检查URL是否存在，避免无效请求）
+            if (!url) {
+                throw "参数缺失：bom_alert_url未配置";
+            }
+            var resp = req.post(url, JSON.stringify(fields));
+        
+            // 6. 日志和状态判断（细化错误信息）
+            Zabbix.Log(4, "BOM请求URL: " + url + "，响应状态: " + req.statusCode);
+            if (req.statusCode < 200 || req.statusCode >= 300) {
+                Zabbix.Log(3, "BOM响应内容: " + resp);  // 直接记录原始响应，避免JSON.stringify失败
+                throw "HTTP请求失败，状态码: " + req.statusCode + "，响应: " + resp;
+            }
+        
+            result.success = true;  // 新增成功标识
+        
+        } catch (error) {
+            Zabbix.Log(2, 'BOM通知失败: ' + error);
+            throw 'AnyRobot通知失败: ' + error;  // 抛出错误供Zabbix显示
+        }
+        
+        return JSON.stringify(result);
+      message_templates:
+        - event_source: TRIGGERS
+          operation_mode: PROBLEM
+          subject: 'Problem: {EVENT.NAME}'
+          message: |
+            Problem started at {EVENT.TIME} on {EVENT.DATE}
+            Problem name: {EVENT.NAME}
+            Host: {HOST.NAME}
+            Severity: {EVENT.SEVERITY}
+            Operational data: {EVENT.OPDATA}
+            Original problem ID: {EVENT.ID}
+            {TRIGGER.URL}
+        - event_source: TRIGGERS
+          operation_mode: RECOVERY
+          subject: 'Resolved in {EVENT.DURATION}: {EVENT.NAME}'
+          message: |
+            Problem has been resolved at {EVENT.RECOVERY.TIME} on {EVENT.RECOVERY.DATE}
+            Problem name: {EVENT.NAME}
+            Problem duration: {EVENT.DURATION}
+            Host: {HOST.NAME}
+            Severity: {EVENT.SEVERITY}
+            Original problem ID: {EVENT.ID}
+            {TRIGGER.URL}

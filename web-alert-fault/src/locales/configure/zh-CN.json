@@ -1,0 +1,13 @@
+{
+  "connection": "平台连接",
+  "authToken": "认证令牌",
+  "knowledgeNetwork": "知识网络",
+  "faultPointConvergenceStrategy": "故障点收敛策略",
+  "timeCorrelation": "时间相关性",
+  "faultPointAssociationStrategy": "故障点关联策略",
+  "authTokenHelper": "请在平台获取访问令牌后填写",
+  "convergenceStrategyHelper": "超过此时间未更新的故障点将被自动标记为失效状态",
+  "associationStrategyHelper": "超过此时间未更新的问题将被自动关闭",
+  "authTokenRequired": "请输入认证令牌",
+  "knowledgeNetworkRequired": "请选择知识网络"
+}

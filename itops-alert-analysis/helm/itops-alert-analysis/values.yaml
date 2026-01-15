@@ -1,0 +1,117 @@
+namespace: dip
+cluster: dip
+moduleName: itops-alert-analysis
+
+#环境变量：语言/时区
+env:
+  timezone: Asia/Shanghai
+  language: en_US.UTF-8
+
+replicaCount: 1
+
+#节点选择器
+nodeSelector: {}
+
+image:
+  registry: acr.aishu.cn
+  repository: ar/anyrobot-itops-alert-analysis
+  tag: tag
+  pullPolicy: Always
+
+service:
+  enableDualStack: false
+  ingressclassname: ""
+  alertAnalysis:
+    type: ClusterIP
+    port: 13047
+    ingress:
+      enabled: true
+      interface:
+        path:
+          - /api/itops-alert-analysis
+
+# 微服务通信依赖配置
+depServices:
+  class-443:
+    ingressClass: class-443
+  mq:
+    auth:
+      mechanism: PLAIN
+      password: eisoo.com123
+      username: anyrobot
+    mqHost: kafka-headless.resource.svc.cluster.local.
+    mqPort: 9097
+    mqType: kafka
+    protocol: sasl_plaintext
+    tenant: default
+  opensearch:
+    host: opensearch-master.resource.svc.cluster.local.
+    port: 9200
+    protocol: http
+    user: admin
+    password: eisoo.com123
+
+  redis:
+    connectInfo:
+      masterGroupName: mymaster
+      password: eisoo.com123
+      sentinelHost: proton-redis-proton-redis-sentinel.resource
+      sentinelPassword: eisoo.com123
+      sentinelPort: 26379
+      sentinelUsername: root
+      username: root
+    connectType: sentinel
+
+#反亲和性设置
+antiAffinity:
+  enabled: true
+  rule: "soft" # hard, soft
+
+config:
+  api:
+    port: 13047
+
+  log:
+    filepath: /opt/itops-alert-analysis/log/itops-alert-analysis.log
+    level: info
+    max_size: 10
+    max_age: 10
+    max_backups: 100
+    compress: false
+    development: false
+
+  app_config_service:
+    endpoint: "http://itops-alert-manager-dip.dip:13046/api/itops_alert_manager/v1/in/config"
+    refresh_interval: 30s
+    enabled: true
+
+  kafka:
+    raw_events:
+      topic: itops_alert_raw_event
+      consumer_group: itops-alert-analysis-consumer
+    problem_events:
+      topic: itops_alert_problem_event
+      consumer_group: itops-alert-analysis-rca-consumer
+
+  platform:
+    base_url: "https://nginx-ingress-class-443.dip:443"
+    timeout: 120s
+    insecure_skip_verify: true
+    agents:
+      problem_summary:
+        app_id: "01KCZ9WEAAATVXAD89TBKN6CER"
+        agent_key: "01KCZ9WEAAATVXAD89T8QGEX3F"
+
+      causal_analysis:
+        app_id: "01KCNY5BJRAM7ZV6APXG60JPZF"
+        agent_key: "01KCNY5BJRAM7ZV6APXER6TRT6"
+
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 2
+    memory: 4Gi
+

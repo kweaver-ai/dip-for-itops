@@ -1,0 +1,68 @@
+[AutoItOpsAlertManager.InternalError.InternalError]
+Description= "Server Internal Error"
+Solution= "Please check the log for specific errors"
+ErrorLink= "None"
+
+[AutoItOpsAlertManager.BadRequest.InvalidParameter]
+Description= "Invalid Parameters"
+Solution= "Please check whether the parameter is correct"
+ErrorLink= "None"
+
+[AutoItOpsAlertManager.NotFound.Data]
+Description= "Data Not Found"
+Solution= "None"
+ErrorLink= "None"
+
+[AutoItOpsAlertManager.InvalidParameter.SortInvalidParameter]
+Description = "The sort field parameter is invalid and the sort field is not supported"
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InvalidParameter.LimitInvalidParameter]
+Description = "Invalid Limit Parameters. The number per page should be greater than 1 and less than 100, or equals to -1."
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InvalidParameter.OffsetInvalidParameter]
+Description = "Invalid Offset Parameters. Offset should be greater than 0"
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InvalidParameter.DirectionInvalidParameter]
+Description = "Invalid Direction Parameters. Direction should be included in the list {desc, asc}"
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InternalError.GenerateIDFailed]
+Description = "Failed to generate Distributed ID "
+Solution = "Please try again. If the error occurs again, please submit the work order or contact technical support."
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InternalError.DataConvertFailed]
+Description = "Server Internal Error, Data Convert Failed"
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InternalError.ExecuteSqlError]
+Description = "Server Internal Error"
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.InternalError.ClientRequestError]
+Description = "Error accessing other clients"
+Solution = "None"
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.BadRequest.NameExisted]
+Description = "Same Name Existed"
+Solution = "Please check whether the parameter is correct."
+ErrorLink = "None"
+
+[AutoItOpsAlertManager.BadRequest.Unauthorized]
+Description = "authorized failed"
+Solution = "None"
+ErrorLink = "None"
+
+
+
+
